@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://blog.collen.cn">
-  <title>Archives | Collen随笔</title>
+  <title>基于centos7安装docker入门基础 | Collen随笔</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Collen随笔">
-<meta property="og:url" content="http://blog.collen.cn/archives/index.html">
+  <meta name="description" content="Docker的特性以及基本概念（镜像、容器、仓库）请自行查阅，下面进入正题： 1、首先我们需要来安装Docker.本人用的是服务器为centos7.安装配置命令如下： 12345678910111213141516171、更新update到最新的版本 yum update -y （若出现下载缓慢或者卡死情况可尝试更换yum源）2、卸载老版本docker yum remove docker dock">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于centos7安装docker入门基础">
+<meta property="og:url" content="http://blog.collen.cn/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="Collen随笔">
+<meta property="og:description" content="Docker的特性以及基本概念（镜像、容器、仓库）请自行查阅，下面进入正题： 1、首先我们需要来安装Docker.本人用的是服务器为centos7.安装配置命令如下： 12345678910111213141516171、更新update到最新的版本 yum update -y （若出现下载缓慢或者卡死情况可尝试更换yum源）2、卸载老版本docker yum remove docker dock">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-22T02:20:43.000Z">
+<meta property="article:modified_time" content="2020-06-22T02:21:03.288Z">
 <meta property="article:author" content="Collen">
 <meta property="article:tag" content="PHP">
 <meta property="article:tag" content="Docker">
@@ -154,76 +158,165 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-基于centos7安装docker入门基础" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      基于centos7安装docker入门基础
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/" class="archive-article-date">
+
+        
+        <a href="/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/" class="archive-article-date">
   	<time datetime="2020-06-22T02:20:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-22</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/">基于centos7安装docker入门基础</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Docker的特性以及基本概念（镜像、容器、仓库）请自行查阅，下面进入正题：</p>
+<p>1、首先我们需要来安装Docker.本人用的是服务器为centos7.安装配置命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">1、更新update到最新的版本 yum update -y （若出现下载缓慢或者卡死情况可尝试更换yum源）</span><br><span class="line"></span><br><span class="line">2、卸载老版本docker yum remove docker docker-common docker-selinux docker-engine</span><br><span class="line"></span><br><span class="line">3、安装需要的软件包 yum install -y yum-utils device-mapper-persistent-data lvm2</span><br><span class="line"></span><br><span class="line">4、设置yum源yum-config-manager --add-repo  https:&#x2F;&#x2F;download.docker.com&#x2F;linux&#x2F;centos&#x2F;docker-ce.repo                                                </span><br><span class="line"></span><br><span class="line">5、查看docker版本 yum list docker-ce --showduplicates|sort -r</span><br><span class="line"></span><br><span class="line">6、安装docker yum install docker-ce-18.03.1.ce -y （此处版本可根据自己意愿选择)</span><br><span class="line"></span><br><span class="line">7、启动docker systemctl start docker</span><br><span class="line"></span><br><span class="line">8、加入开机自启 systemctl enable docker</span><br><span class="line"></span><br><span class="line">9、配置国内镜像 vi &#x2F;etc&#x2F;docker&#x2F;daemon.json  ， 增加&#123; &quot;registry-mirrors&quot;: [&quot;http:&#x2F;&#x2F;hub-mirror.c.163.com&quot;] &#125;</span><br></pre></td></tr></table></figure>
+<p>2、在操作docker前，我们还需要了解docker的一些常用命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">2.1.启动</span><br><span class="line"></span><br><span class="line">docker start 容器名</span><br><span class="line"></span><br><span class="line">2.2.删除</span><br><span class="line"></span><br><span class="line">docker rm 容器名</span><br><span class="line"></span><br><span class="line">2.3.停止所容器</span><br><span class="line"></span><br><span class="line">docker stop $(docker ps -a -q)</span><br><span class="line"></span><br><span class="line">docker rm $(docker ps -a -q)</span><br><span class="line"></span><br><span class="line">2.4.docker build -t 名称 .</span><br><span class="line"></span><br><span class="line">Usage：docker build [OPTIONS] PATH | URL | -</span><br><span class="line"></span><br><span class="line">OPTIONS： -t ，--tag list #构建后的镜像名称 -f， --file string #指定Dockerfiile文件位置 </span><br><span class="line"></span><br><span class="line">示例： 1，docker build . 2，docker build -t redis:v1 . 3，docker build -t redis:v2 -f &#x2F;path&#x2F;Dockerfile &#x2F;path</span><br></pre></td></tr></table></figure>
+<p>3、接下来我们就可以进行镜像拉取了，以安装nginx为例：</p>
+<p>菜鸟教程nginx安装：<a href="https://www.runoob.com/docker/docker-install-nginx.html" target="_blank" rel="noopener">https://www.runoob.com/docker/docker-install-nginx.html</a></p>
+<p>补充：docker容器迁移处理</p>
+<p>3.1、docker export 容器id/name &gt;文件名.tar</p>
+<p>3.2、docker import 文件名.tar 镜像名:标签</p>
 
-        <div class="article-info info-on-right">
-          
-          
+      
 
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://blog.collen.cn/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/06/16/hello-world/" class="archive-article-date">
-  	<time datetime="2020-06-16T09:52:11.223Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-16</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/06/16/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hello World.</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/06/16/hello-world/">Hello World.</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
+
+  
 
 
           </div>
@@ -246,8 +339,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
