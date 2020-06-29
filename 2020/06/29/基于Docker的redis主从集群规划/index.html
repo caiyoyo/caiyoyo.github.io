@@ -7,10 +7,10 @@
 
     
 
-    <title>Collen随笔</title>
+    <title>基于Docker的redis主从集群规划 | Collen随笔</title>
     <meta name="author" content="Collen" />
     <meta name="keywords" content="PHP,Docker,Redis,Swoole" />
-    <meta name="description" content="" />
+    <meta name="description" content="#####容器网络创建Docker安装后，默认会创建下面三种网络类型docker network ls 查看默认的网络默认情况下启动的Docker容器，都是使用 bridge(桥接网络)，每次Docker容器重启时，会按照顺序获取对应的IP地址，这个就导致重启 下，Docker的IP地址就变了 none：无指定网络 使用 –network=none ，docker 容器就不会分配局域网的IP host： 主机网络 使用 –network=host，此时，Docker 容器的网络会附属..." />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
 
@@ -52,7 +52,7 @@
 
     <nav id="nav-inner" class="nav-inner">
         
-            <a class="nav-item active" href="/">
+            <a class="nav-item" href="/">
                 <span class="nav-text">首页</span>
             </a>
         
@@ -84,6 +84,8 @@
     <div id="aside-inner" class="aside-inner">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.collen.cn"></form>
 
+        
+        
         
         
 
@@ -142,17 +144,16 @@
 
         <div id="content" class="content">
             <div id="wrapper" class="wrapper" style="max-width: 800px">
-                
-    <article class="article" itemscope itemprop="blogPost">
+                <article class="article" itemscope itemprop="blogPost">
     
     <header class="article-header">
         
         <h1 itemprop="name">
-            <a href="/2020/06/29/%E5%9F%BA%E4%BA%8EDocker%E7%9A%84redis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92/">基于Docker的redis主从集群规划</a>
+            基于Docker的redis主从集群规划
         </h1>
         
         <div class="article-meta clearfix">
-            <a class="article-date" href="http://blog.collen.cn/index.html">
+            <a class="article-date" href="http://blog.collen.cn/2020/06/29/%E5%9F%BA%E4%BA%8EDocker%E7%9A%84redis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92/index.html">
     
     <i class="icon-calendar vm"></i>
     
@@ -178,109 +179,55 @@
 </ul>
 <p>因为默认的网络不能指定固定的地址，所以我们将创建自定义网络，并指定网段：192.168.1.0/24 并命名为mynetwork，指令 如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create --subnet&#x3D;192.168.1.0&#x2F;24 mynetwork</span><br></pre></td></tr></table></figure>
-        
-        <p class="article-more-link">
-            <a href="/2020/06/29/%E5%9F%BA%E4%BA%8EDocker%E7%9A%84redis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92/#more">
-                <span class="vm">阅读更多</span>
-                <i class="icon-arrow-double-right vm"></i>    
-            </a>
-        </p>
-        
+<a id="more"></a>
+<p>###创建redis镜像忽略……<br>接下来通过docker命令分别运行redis容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name redis-master --net mynetwork -p 6380:6379 --ip 192.168.1.2 redis </span><br><span class="line">docker run -it --name redis-slave --net mynetwork -p 6381:6379 --ip 192.168.1.3 redis</span><br></pre></td></tr></table></figure>
+<p>通过docker ps -a 命令可查看已创建成功的主从容器<br><img src="https://upload-images.jianshu.io/upload_images/20346725-22f36bbe76b21678.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="QQ截图20191205125410.png"></p>
+<p>接着输入docker exec -it redis-master sh进入主容器 （备注：因为我构建的redis dockerfile是用的alpine系统并非centos 所以sh命令有差别）<br>在容器内运行redis-cli -a 密码运行redis （备注：密码登录可在配置文件中设置）<br>从容器同理</p>
+<p>###主从复制<br>从节点开启主从复制，有3种方式：</p>
+<ol>
+<li>配置文件 在从服务器的配置文件中加入：slaveof <masterip> <masterport> </li>
+<li>启动命令 redis-server启动命令后加入 –slaveof <masterip> <masterport> </li>
+<li>客户端命令 Redis服务器启动后，直接通过客户端执行命令：slaveof <masterip> <masterport>，则该Redis实例成为从节点。<br>通过 info replication 命令可以看到复制的一些参数信息<br><img src="https://upload-images.jianshu.io/upload_images/20346725-9ee9728df2d4f2e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="QQ截图20191205130514.png"><br>出现<strong>up</strong>状态即代表主从复制配置成功！<br>###主从复制的常用相关配置<br>从数据库配置 </li>
+</ol>
+<ol>
+<li><code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code>slave实例需要配置该项，指向master的（ip, port）。 </li>
+<li><code>masterauth &lt;master-password&gt;</code> 如果master实例启用了密码保护，则该配置项需填master的启动密码；若master未启用密码，该配置项需要注释掉 </li>
+<li><code>slave-serve-stale-data</code> 指定 slave 与 master 连接中断时的动作。默认为yes，表明slave会继续应答来自client的请求，但这些数据可能已经过期（因为连接中断导致无法从 master 同步）。 若配置为no，则slave除正常应答”INFO”和”SLAVEOF”命令外，其余来自客户端的请求命令均会得到” SYNC with master in progress “的应答，直到该 slave 与 master 的连接重建成功或该 slave 被提升为 master 。</li>
+<li><code>slave-read-only</code> 指定slave是否只读，默认为yes。若配置为no，这表示slave是可写的，但写的内容在主从同步完成后会被删掉。</li>
+<li><code>repl-disable-tcp-nodelay</code> 指定向slave同步数据时，是否禁用 socket 的 NO_DELAY 选项。若配置为yes，则禁用 NO_DELAY ，则TCP协议栈会合并小包统一发送，这样可以减少主从节点 间的包数量并节省带宽，但会增加数据同步到slave的时间。 若配置为no，表明启用 NO_DELAY ，则TCP协议栈不会延迟小包的发送时机，这样数据同步的延时会减少，但需要更大的带宽。通常情况下，应该配置为no以降 低同步延时，但在主从节点间网络负载已经很高的情况下，可以配置为yes。 </li>
+<li><code>slave-priority</code> 指定 slave 的优先级。在不只1个 slave 存在的部署环境下，当 master 宕机时， Redis Sentinel 会将priority值最小的slave提升为master。需要注意的是，若 该配置项为0，则对应的slave永远不会被 Redis Sentinel 自动提升为 master 。</li>
+</ol>
+
         
     </section>
 </article>
 
 
-    <article class="article" itemscope itemprop="blogPost">
-    
-    <header class="article-header">
-        
-        <h1 itemprop="name">
-            <a href="/2020/06/29/docker-compose%E6%9E%84%E5%BB%BAlnrmp/">docker-compose构建lnrmp</a>
-        </h1>
-        
-        <div class="article-meta clearfix">
-            <a class="article-date" href="http://blog.collen.cn/index.html">
-    
-    <i class="icon-calendar vm"></i>
-    
-    <time class="vm" datetime="2020-06-29T07:48:05.000Z" itemprop="datePublished">2020-06-29</time>
-</a>
 
-            
-<div class="article-tag-list">
-    <i class="icon-tag vm"></i>
-    <a class="article-tag-link" href="/tags/docker/" rel="tag">docker</a>, <a class="article-tag-link" href="/tags/mysql/" rel="tag">mysql</a>, <a class="article-tag-link" href="/tags/nginx/" rel="tag">nginx</a>, <a class="article-tag-link" href="/tags/php-fpm/" rel="tag">php-fpm</a>, <a class="article-tag-link" href="/tags/redis/" rel="tag">redis</a>
+<a id="pagenext" href="/2020/06/29/docker-compose%E6%9E%84%E5%BB%BAlnrmp/" class="article-next" title="docker-compose构建lnrmp"><i class="icon-arrow-right"></i></a>
+
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "caiyoyo.github.io",
+        owner: "collen",
+        admin: ["collen"],
+        id: "2020/06/29/基于Docker的redis主从集群规划",
+        distractionFreeMode: true,
+        title: "基于Docker的redis主从集群规划",
+        body: "http://blog.collen.cn/2020/06/29/%E5%9F%BA%E4%BA%8EDocker%E7%9A%84redis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92/",
+        labels: ["docker","redis"]
+    }).render('comments');
+    </script>
 </div>
-
-
-        </div>
-    </header>
-    
-    <section class="article-body markdown-body">
-        
-        <p>本文介绍docker-compose一键安装php环境，docker-compose常用命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">1.【Linux命令】docker-compose down #停止和删除容器、网络、卷、镜像。</span><br><span class="line"></span><br><span class="line">2.【Linux命令】docker-compose up #命令聚合每个容器的输出，命令退出时，所有容器都将停止。</span><br><span class="line"></span><br><span class="line">3.【Linux命令】docker-compose up -d #在后台启动容器并使它们保持运行。</span><br><span class="line"></span><br><span class="line">4.【Linux命令】docker-compose logs -f #查看该容器的启动的日志打印(日志从头打印)。</span><br><span class="line"></span><br><span class="line">5.【Linux命令】docker logs -f container_id #查看某一容器的启动的日志打印(日志从头打印)。 </span><br><span class="line"></span><br><span class="line">6.【Linux命令】docker logs -f --tail 数量词 container_id #查看某一容器的启动的日志打印(查看最后n条日志打印)。 例：docker logs -f --tail 50 44b </span><br><span class="line"></span><br><span class="line">7.【Linux命令】docker-compose stop #停止compose服务。</span><br><span class="line"></span><br><span class="line">8.【Linux命令】docker-compose restart #重启compose服务。</span><br><span class="line"></span><br><span class="line">9.【Linux命令】docker-compose kill #kill compose服务。</span><br><span class="line"></span><br><span class="line">10.【Linux命令】docker-compose ps #查看compose服务状态。</span><br><span class="line"></span><br><span class="line">11.【Linux命令】docker-compose rm #删除compose服务。</span><br></pre></td></tr></table></figure>
-<p>下面进入整题，废话不说上代码：</p>
-        
-        <p class="article-more-link">
-            <a href="/2020/06/29/docker-compose%E6%9E%84%E5%BB%BAlnrmp/#more">
-                <span class="vm">阅读更多</span>
-                <i class="icon-arrow-double-right vm"></i>    
-            </a>
-        </p>
-        
-        
-    </section>
-</article>
-
-
-    <article class="article" itemscope itemprop="blogPost">
-    
-    <header class="article-header">
-        
-        <h1 itemprop="name">
-            <a href="/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/">centos7安装docker入门基础</a>
-        </h1>
-        
-        <div class="article-meta clearfix">
-            <a class="article-date" href="http://blog.collen.cn/index.html">
-    
-    <i class="icon-calendar vm"></i>
-    
-    <time class="vm" datetime="2020-06-22T02:20:43.000Z" itemprop="datePublished">2020-06-22</time>
-</a>
-
-            
-<div class="article-tag-list">
-    <i class="icon-tag vm"></i>
-    <a class="article-tag-link" href="/tags/docker/" rel="tag">docker</a>
-</div>
-
-
-        </div>
-    </header>
-    
-    <section class="article-body markdown-body">
-        
-        <p>Docker的特性以及基本概念（镜像、容器、仓库）请自行查阅，下面进入正题：</p>
-<p>1、首先我们需要来安装Docker.本人用的是服务器为centos7.安装配置命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">1、更新update到最新的版本 yum update -y （若出现下载缓慢或者卡死情况可尝试更换yum源）</span><br><span class="line"></span><br><span class="line">2、卸载老版本docker yum remove docker docker-common docker-selinux docker-engine</span><br><span class="line"></span><br><span class="line">3、安装需要的软件包 yum install -y yum-utils device-mapper-persistent-data lvm2</span><br><span class="line"></span><br><span class="line">4、设置yum源yum-config-manager --add-repo  https:&#x2F;&#x2F;download.docker.com&#x2F;linux&#x2F;centos&#x2F;docker-ce.repo                                                </span><br><span class="line"></span><br><span class="line">5、查看docker版本 yum list docker-ce --showduplicates|sort -r</span><br><span class="line"></span><br><span class="line">6、安装docker yum install docker-ce-18.03.1.ce -y （此处版本可根据自己意愿选择)</span><br><span class="line"></span><br><span class="line">7、启动docker systemctl start docker</span><br><span class="line"></span><br><span class="line">8、加入开机自启 systemctl enable docker</span><br><span class="line"></span><br><span class="line">9、配置国内镜像 vi &#x2F;etc&#x2F;docker&#x2F;daemon.json  ， 增加&#123; &quot;registry-mirrors&quot;: [&quot;http:&#x2F;&#x2F;hub-mirror.c.163.com&quot;] &#125;</span><br></pre></td></tr></table></figure>
-        
-        <p class="article-more-link">
-            <a href="/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/#more">
-                <span class="vm">阅读更多</span>
-                <i class="icon-arrow-double-right vm"></i>    
-            </a>
-        </p>
-        
-        
-    </section>
-</article>
-
-
-
-
 
 
             </div>
@@ -357,6 +304,33 @@
         });
     });
     </script>
+    
+        
+<script src="/js/scrollspy.min.js"></script>
+
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
     
 
 </body>

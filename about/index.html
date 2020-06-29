@@ -7,7 +7,7 @@
 
     
 
-    <title>Collen随笔</title>
+    <title>about | Collen随笔</title>
     <meta name="author" content="Collen" />
     <meta name="keywords" content="PHP,Docker,Redis,Swoole" />
     <meta name="description" content="" />
@@ -52,7 +52,7 @@
 
     <nav id="nav-inner" class="nav-inner">
         
-            <a class="nav-item active" href="/">
+            <a class="nav-item" href="/">
                 <span class="nav-text">首页</span>
             </a>
         
@@ -72,7 +72,7 @@
                 <span class="nav-text">订阅</span>
             </a>
         
-            <a class="nav-item" href="/about">
+            <a class="nav-item active" href="/about">
                 <span class="nav-text">关于</span>
             </a>
         
@@ -142,145 +142,55 @@
 
         <div id="content" class="content">
             <div id="wrapper" class="wrapper" style="max-width: 800px">
-                
-    <article class="article" itemscope itemprop="blogPost">
+                <article class="article" itemscope itemprop="blogPost">
     
     <header class="article-header">
         
         <h1 itemprop="name">
-            <a href="/2020/06/29/%E5%9F%BA%E4%BA%8EDocker%E7%9A%84redis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92/">基于Docker的redis主从集群规划</a>
+            about
         </h1>
         
         <div class="article-meta clearfix">
-            <a class="article-date" href="http://blog.collen.cn/index.html">
+            <a class="article-date" href="http://blog.collen.cn/about/index.html">
     
     <i class="icon-calendar vm"></i>
     
-    <time class="vm" datetime="2020-06-29T08:50:07.000Z" itemprop="datePublished">2020-06-29</time>
+    <time class="vm" datetime="2020-06-29T07:41:51.000Z" itemprop="datePublished">2020-06-29</time>
 </a>
 
             
-<div class="article-tag-list">
-    <i class="icon-tag vm"></i>
-    <a class="article-tag-link" href="/tags/docker/" rel="tag">docker</a>, <a class="article-tag-link" href="/tags/redis/" rel="tag">redis</a>
-</div>
-
 
         </div>
     </header>
     
     <section class="article-body markdown-body">
         
-        <p>#####容器网络创建<br>Docker安装后，默认会创建下面三种网络类型<br>docker network ls 查看默认的网络<br>默认情况下启动的Docker容器，都是使用 bridge(桥接网络)，每次Docker容器重启时，会按照顺序获取对应的IP地址，这个就导致重启 下，Docker的IP地址就变了 </p>
-<ul>
-<li>none：无指定网络 使用 –network=none ，docker 容器就不会分配局域网的IP </li>
-<li>host： 主机网络 使用 –network=host，此时，Docker 容器的网络会附属在主机上，两者是互通的。 例如，在容器中运行一个Web服务，监听8080端口，则主 机的8080端口就会自动映射到容器中</li>
-</ul>
-<p>因为默认的网络不能指定固定的地址，所以我们将创建自定义网络，并指定网段：192.168.1.0/24 并命名为mynetwork，指令 如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create --subnet&#x3D;192.168.1.0&#x2F;24 mynetwork</span><br></pre></td></tr></table></figure>
-        
-        <p class="article-more-link">
-            <a href="/2020/06/29/%E5%9F%BA%E4%BA%8EDocker%E7%9A%84redis%E4%B8%BB%E4%BB%8E%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92/#more">
-                <span class="vm">阅读更多</span>
-                <i class="icon-arrow-double-right vm"></i>    
-            </a>
-        </p>
-        
+        <p>我是一只小小菜</p>
+
         
     </section>
 </article>
 
 
-    <article class="article" itemscope itemprop="blogPost">
-    
-    <header class="article-header">
-        
-        <h1 itemprop="name">
-            <a href="/2020/06/29/docker-compose%E6%9E%84%E5%BB%BAlnrmp/">docker-compose构建lnrmp</a>
-        </h1>
-        
-        <div class="article-meta clearfix">
-            <a class="article-date" href="http://blog.collen.cn/index.html">
-    
-    <i class="icon-calendar vm"></i>
-    
-    <time class="vm" datetime="2020-06-29T07:48:05.000Z" itemprop="datePublished">2020-06-29</time>
-</a>
 
-            
-<div class="article-tag-list">
-    <i class="icon-tag vm"></i>
-    <a class="article-tag-link" href="/tags/docker/" rel="tag">docker</a>, <a class="article-tag-link" href="/tags/mysql/" rel="tag">mysql</a>, <a class="article-tag-link" href="/tags/nginx/" rel="tag">nginx</a>, <a class="article-tag-link" href="/tags/php-fpm/" rel="tag">php-fpm</a>, <a class="article-tag-link" href="/tags/redis/" rel="tag">redis</a>
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "caiyoyo.github.io",
+        owner: "collen",
+        admin: ["collen"],
+        id: "about/index.html",
+        distractionFreeMode: true,
+        title: "about",
+        body: "http://blog.collen.cn/about/index.html",
+        labels: []
+    }).render('comments');
+    </script>
 </div>
-
-
-        </div>
-    </header>
-    
-    <section class="article-body markdown-body">
-        
-        <p>本文介绍docker-compose一键安装php环境，docker-compose常用命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">1.【Linux命令】docker-compose down #停止和删除容器、网络、卷、镜像。</span><br><span class="line"></span><br><span class="line">2.【Linux命令】docker-compose up #命令聚合每个容器的输出，命令退出时，所有容器都将停止。</span><br><span class="line"></span><br><span class="line">3.【Linux命令】docker-compose up -d #在后台启动容器并使它们保持运行。</span><br><span class="line"></span><br><span class="line">4.【Linux命令】docker-compose logs -f #查看该容器的启动的日志打印(日志从头打印)。</span><br><span class="line"></span><br><span class="line">5.【Linux命令】docker logs -f container_id #查看某一容器的启动的日志打印(日志从头打印)。 </span><br><span class="line"></span><br><span class="line">6.【Linux命令】docker logs -f --tail 数量词 container_id #查看某一容器的启动的日志打印(查看最后n条日志打印)。 例：docker logs -f --tail 50 44b </span><br><span class="line"></span><br><span class="line">7.【Linux命令】docker-compose stop #停止compose服务。</span><br><span class="line"></span><br><span class="line">8.【Linux命令】docker-compose restart #重启compose服务。</span><br><span class="line"></span><br><span class="line">9.【Linux命令】docker-compose kill #kill compose服务。</span><br><span class="line"></span><br><span class="line">10.【Linux命令】docker-compose ps #查看compose服务状态。</span><br><span class="line"></span><br><span class="line">11.【Linux命令】docker-compose rm #删除compose服务。</span><br></pre></td></tr></table></figure>
-<p>下面进入整题，废话不说上代码：</p>
-        
-        <p class="article-more-link">
-            <a href="/2020/06/29/docker-compose%E6%9E%84%E5%BB%BAlnrmp/#more">
-                <span class="vm">阅读更多</span>
-                <i class="icon-arrow-double-right vm"></i>    
-            </a>
-        </p>
-        
-        
-    </section>
-</article>
-
-
-    <article class="article" itemscope itemprop="blogPost">
-    
-    <header class="article-header">
-        
-        <h1 itemprop="name">
-            <a href="/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/">centos7安装docker入门基础</a>
-        </h1>
-        
-        <div class="article-meta clearfix">
-            <a class="article-date" href="http://blog.collen.cn/index.html">
-    
-    <i class="icon-calendar vm"></i>
-    
-    <time class="vm" datetime="2020-06-22T02:20:43.000Z" itemprop="datePublished">2020-06-22</time>
-</a>
-
-            
-<div class="article-tag-list">
-    <i class="icon-tag vm"></i>
-    <a class="article-tag-link" href="/tags/docker/" rel="tag">docker</a>
-</div>
-
-
-        </div>
-    </header>
-    
-    <section class="article-body markdown-body">
-        
-        <p>Docker的特性以及基本概念（镜像、容器、仓库）请自行查阅，下面进入正题：</p>
-<p>1、首先我们需要来安装Docker.本人用的是服务器为centos7.安装配置命令如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">1、更新update到最新的版本 yum update -y （若出现下载缓慢或者卡死情况可尝试更换yum源）</span><br><span class="line"></span><br><span class="line">2、卸载老版本docker yum remove docker docker-common docker-selinux docker-engine</span><br><span class="line"></span><br><span class="line">3、安装需要的软件包 yum install -y yum-utils device-mapper-persistent-data lvm2</span><br><span class="line"></span><br><span class="line">4、设置yum源yum-config-manager --add-repo  https:&#x2F;&#x2F;download.docker.com&#x2F;linux&#x2F;centos&#x2F;docker-ce.repo                                                </span><br><span class="line"></span><br><span class="line">5、查看docker版本 yum list docker-ce --showduplicates|sort -r</span><br><span class="line"></span><br><span class="line">6、安装docker yum install docker-ce-18.03.1.ce -y （此处版本可根据自己意愿选择)</span><br><span class="line"></span><br><span class="line">7、启动docker systemctl start docker</span><br><span class="line"></span><br><span class="line">8、加入开机自启 systemctl enable docker</span><br><span class="line"></span><br><span class="line">9、配置国内镜像 vi &#x2F;etc&#x2F;docker&#x2F;daemon.json  ， 增加&#123; &quot;registry-mirrors&quot;: [&quot;http:&#x2F;&#x2F;hub-mirror.c.163.com&quot;] &#125;</span><br></pre></td></tr></table></figure>
-        
-        <p class="article-more-link">
-            <a href="/2020/06/22/%E5%9F%BA%E4%BA%8Ecentos7%E5%AE%89%E8%A3%85docker%E5%85%A5%E9%97%A8%E5%9F%BA%E7%A1%80/#more">
-                <span class="vm">阅读更多</span>
-                <i class="icon-arrow-double-right vm"></i>    
-            </a>
-        </p>
-        
-        
-    </section>
-</article>
-
-
-
-
 
 
             </div>
