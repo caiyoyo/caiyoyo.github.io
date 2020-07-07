@@ -175,15 +175,9 @@
 <ol>
 <li>配置文件 在从服务器的配置文件中加入：slaveof <masterip> <masterport> </li>
 <li>启动命令 redis-server启动命令后加入 –slaveof <masterip> <masterport> </li>
-<li>客户端命令 Redis服务器启动后，直接通过客户端执行命令：slaveof <masterip> <masterport>，则该Redis实例成为从节点。<br>通过 info replication 命令可以看到复制的一些参数信息<br><img src="https://upload-images.jianshu.io/upload_images/20346725-9ee9728df2d4f2e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="QQ截图20191205130514.png"><br>出现<strong>up</strong>状态即代表主从复制配置成功！<br>###主从复制的常用相关配置<br>从数据库配置<br>1.<code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code>slave实例需要配置该项，指向master的（ip, port）。 <ol start="2">
-<li><code>masterauth &lt;master-password&gt;</code> 如果master实例启用了密码保护，则该配置项需填master的启动密码；若master未启用密码，该配置项需要注释掉 </li>
-<li><code>slave-serve-stale-data</code> 指定 slave 与 master 连接中断时的动作。默认为yes，表明slave会继续应答来自client的请求，但这些数据可能已经过期（因为连接中断导致无法从 master 同步）。 若配置为no，则slave除正常应答”INFO”和”SLAVEOF”命令外，其余来自客户端的请求命令均会得到” SYNC with master in progress “的应答，直到该 slave 与 master 的连接重建成功或该 slave 被提升为 master 。</li>
-<li><code>slave-read-only</code> 指定slave是否只读，默认为yes。若配置为no，这表示slave是可写的，但写的内容在主从同步完成后会被删掉。</li>
-<li><code>repl-disable-tcp-nodelay</code> 指定向slave同步数据时，是否禁用 socket 的 NO_DELAY 选项。若配置为yes，则禁用 NO_DELAY ，则TCP协议栈会合并小包统一发送，这样可以减少主从节点 间的包数量并节省带宽，但会增加数据同步到slave的时间。 若配置为no，表明启用 NO_DELAY ，则TCP协议栈不会延迟小包的发送时机，这样数据同步的延时会减少，但需要更大的带宽。通常情况下，应该配置为no以降 低同步延时，但在主从节点间网络负载已经很高的情况下，可以配置为yes。 </li>
-<li><code>slave-priority</code> 指定 slave 的优先级。在不只1个 slave 存在的部署环境下，当 master 宕机时， Redis Sentinel 会将priority值最小的slave提升为master。需要注意的是，若 该配置项为0，则对应的slave永远不会被 Redis Sentinel 自动提升为 master 。</li>
+<li>客户端命令 Redis服务器启动后，直接通过客户端执行命令：slaveof <masterip> <masterport>，则该Redis实例成为从节点。<br>通过 info replication 命令可以看到复制的一些参数信息<br><img src="https://upload-images.jianshu.io/upload_images/20346725-9ee9728df2d4f2e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="QQ截图20191205130514.png"><br>出现<strong>up</strong>状态即代表主从复制配置成功！</li>
 </ol>
-</li>
-</ol>
+<p>###主从复制的常用相关配置<br>从数据库配置<br>1.<code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code>slave实例需要配置该项，指向master的（ip, port）。<br>2. <code>masterauth &lt;master-password&gt;</code> 如果master实例启用了密码保护，则该配置项需填master的启动密码；若master未启用密码，该配置项需要注释掉<br>3. <code>slave-serve-stale-data</code> 指定 slave 与 master 连接中断时的动作。默认为yes，表明slave会继续应答来自client的请求，但这些数据可能已经过期（因为连接中断导致无法从 master 同步）。 若配置为no，则slave除正常应答”INFO”和”SLAVEOF”命令外，其余来自客户端的请求命令均会得到” SYNC with master in progress “的应答，直到该 slave 与 master 的连接重建成功或该 slave 被提升为 master 。<br>4. <code>slave-read-only</code> 指定slave是否只读，默认为yes。若配置为no，这表示slave是可写的，但写的内容在主从同步完成后会被删掉。<br>5. <code>repl-disable-tcp-nodelay</code> 指定向slave同步数据时，是否禁用 socket 的 NO_DELAY 选项。若配置为yes，则禁用 NO_DELAY ，则TCP协议栈会合并小包统一发送，这样可以减少主从节点 间的包数量并节省带宽，但会增加数据同步到slave的时间。 若配置为no，表明启用 NO_DELAY ，则TCP协议栈不会延迟小包的发送时机，这样数据同步的延时会减少，但需要更大的带宽。通常情况下，应该配置为no以降 低同步延时，但在主从节点间网络负载已经很高的情况下，可以配置为yes。<br>6. <code>slave-priority</code> 指定 slave 的优先级。在不只1个 slave 存在的部署环境下，当 master 宕机时， Redis Sentinel 会将priority值最小的slave提升为master。需要注意的是，若 该配置项为0，则对应的slave永远不会被 Redis Sentinel 自动提升为 master 。</p>
 <p>###复制原理<br>复制的过程步骤如下：</p>
 <ul>
 <li>从节点执行 slaveof 命令</li>
