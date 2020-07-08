@@ -140,10 +140,12 @@
 <li>如果从节点执行全量复制操作，主节点自动执行 bgsave 生成 RDB 文件并发送给从节点。</li>
 <li>执行 debug reload 命令重新加载 Redis 时，也会自动触发 save 操作。</li>
 <li>默认情况下执行 shutdown 命令时，如果没有开启 AOF 持久化功能则自动执行 bgsave。<a id="more"></a>
-<h5 id="1-2、流程说明"><a href="#1-2、流程说明" class="headerlink" title="1.2、流程说明"></a>1.2、流程说明</h5>bgsave 是主流的触发 RDB 持久化方式，根据下图了解它的运作流程<br><img src="http://static.collen.cn/rdb.png" alt="rdb.png"></li>
+
+</li>
 </ol>
 </li>
 </ul>
+<h5 id="1-2、流程说明"><a href="#1-2、流程说明" class="headerlink" title="1.2、流程说明"></a>1.2、流程说明</h5><p>bgsave 是主流的触发 RDB 持久化方式，根据下图了解它的运作流程<br><img src="http://static.collen.cn/rdb.png" alt="rdb.png"></p>
 <p>流程解析：<br> <figure class="highlight plain"><figcaption><span>执行 bgsave 命令，Redis 父进程判断当前是否存在正在执行的子进程，如 RDB/AOF 子进程，如果存在 bgsave 命令直接返回。</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">2. 父进程执行 fork 操作创建子进程，fork 操作过程中父进程会阻塞，通过 info stats 命令查看 latest_fork_usec 选项，可以获取最近一个 fork 操作的耗时，单位为微秒。</span><br><span class="line"></span><br><span class="line">3. 父进程 fork 完成后，bgsave 命令返回“Background saving started”信息并不再阻塞父进程，可以继续响应其他命令。</span><br><span class="line">4. 子进程创建 RDB 文件，根据父进程内存生成临时快照文件，完成后对原有文件进行原子替换。执行 lastsave 命令可以获取最后一次生成 RDB 的时间，对应 info 统计的 rdb_last_save_time 选项。</span><br><span class="line">5. 进程发送信号给父进程表示完成，父进程更新统计信息，具体见 info Persistence 下的 rdb_* 相关选项。</span><br></pre></td></tr></table></figure></p>
 <h5 id="1-3、服务器配置自动触发"><a href="#1-3、服务器配置自动触发" class="headerlink" title="1.3、服务器配置自动触发"></a>1.3、服务器配置自动触发</h5><pre><code>除了通过客户端发送命令外，还有一种方式，就是在Redis配置文件中的save指定到达触发RDB持久化的条件，比如【多少秒内至少达到多少写操作】就开启RDB数据同步。</code></pre><p>例如我们可以在配置文件redis.conf指定如下的选项：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 900s内至少达到一条写命令 </span><br><span class="line">save 900 1 </span><br><span class="line"># 300s内至少达至10条写命令 </span><br><span class="line">save 300 10 </span><br><span class="line"># 60s内至少达到10000条写命令 </span><br><span class="line">save 60 10000</span><br></pre></td></tr></table></figure><br>这种通过服务器配置文件触发RDB的方式，与bgsave命令类似，达到触发条件时，会forks一个子进程进行数据同步， 不过最好不要通过这方式来触发RDB持久化，因为设置触发的时间太短，则容易频繁写入rdb文件，影响服务器性能，时间设置太长则会造成数据丢失。</p>
 <h5 id="1-4、RDB方式优缺点"><a href="#1-4、RDB方式优缺点" class="headerlink" title="1.4、RDB方式优缺点"></a>1.4、RDB方式优缺点</h5><pre><code>优点
