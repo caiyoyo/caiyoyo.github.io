@@ -131,7 +131,7 @@
 <p>MyCat是目前最流行的基于Java语言编写的数据库中间件，是一个实现了MySql协议的服务器，其核心功能是分库分表。配合数据库的主从模式还可以实现读写分离。</p>
 </blockquote>
 <h3 id="二、MyCat中的概念"><a href="#二、MyCat中的概念" class="headerlink" title="二、MyCat中的概念"></a>二、MyCat中的概念</h3><h3 id="1-切分"><a href="#1-切分" class="headerlink" title="1.切分"></a>1.切分</h3><p>逻辑上的切分，在物理层面使用多库（database）、多表（table）实现切分。</p>
-<h5 id="1-1-纵向切分-垂直切分"><a href="#1-1-纵向切分-垂直切分" class="headerlink" title="1.1 纵向切分/垂直切分"></a>1.1 纵向切分/垂直切分</h5><p>就是把原来存储在一个库的数据存储在多个库上<br>由于数据库的读写都是对同一个库进行操作，所以单库并不能解决大规模并发写入的问题。<br>例如：我们会建立定义数据库 workDB、商品数据库 payDB、用户数据库 userDB、日志数据库 logDB 等。</p>
+<h5 id="1-1-纵向切分-垂直切分"><a href="#1-1-纵向切分-垂直切分" class="headerlink" title="1.1 纵向切分/垂直切分"></a>1.1 纵向切分/垂直切分</h5><p>就是把原来存储在一个库的数据存储在多个库上<br>由于数据库的读写都是对同一个库进行操作，所以单库并不能解决大规模并发写入的问题。<br>例如：我们会建立定义数据库 workDB、商品数据库 payDB、用户数据库 userDB、日志数据库 logDB 等。<br> <a id="more"></a></p>
 <h5 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h5><ul>
 <li>减少增量数据写入时的锁对查询的影响。</li>
 <li>由于单表数量下降，常见的查询操作由于减少了需要扫描的记录，使得单表单次查询所需检索的行数变少，减少了磁盘IO、时延变短。<h5 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h5></li>
