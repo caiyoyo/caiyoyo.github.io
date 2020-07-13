@@ -148,6 +148,93 @@
     <header class="article-header">
         
         <h1 itemprop="name">
+            <a href="/2020/07/13/Mycat%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8/">Mycat安装及使用</a>
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.collen.cn/index.html">
+    
+    <i class="icon-calendar vm"></i>
+    
+    <time class="vm" datetime="2020-07-13T03:03:25.000Z" itemprop="datePublished">2020-07-13</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag vm"></i>
+    <a class="article-tag-link" href="/tags/mycat-mysql-docker/" rel="tag">mycat mysql docker</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="一、MyCat简介"><a href="#一、MyCat简介" class="headerlink" title="一、MyCat简介"></a>一、MyCat简介</h3><blockquote>
+<p>MyCat是目前最流行的基于Java语言编写的数据库中间件，是一个实现了MySql协议的服务器，其核心功能是分库分表。配合数据库的主从模式还可以实现读写分离。</p>
+</blockquote>
+<h3 id="二、MyCat中的概念"><a href="#二、MyCat中的概念" class="headerlink" title="二、MyCat中的概念"></a>二、MyCat中的概念</h3><h3 id="1-切分"><a href="#1-切分" class="headerlink" title="1.切分"></a>1.切分</h3><p>逻辑上的切分，在物理层面使用多库（database）、多表（table）实现切分。</p>
+<h5 id="1-1-纵向切分-垂直切分"><a href="#1-1-纵向切分-垂直切分" class="headerlink" title="1.1 纵向切分/垂直切分"></a>1.1 纵向切分/垂直切分</h5><p>就是把原来存储在一个库的数据存储在多个库上<br>由于数据库的读写都是对同一个库进行操作，所以单库并不能解决大规模并发写入的问题。<br>例如：我们会建立定义数据库 workDB、商品数据库 payDB、用户数据库 userDB、日志数据库 logDB 等。</p>
+<h5 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h5><ul>
+<li>减少增量数据写入时的锁对查询的影响。</li>
+<li>由于单表数量下降，常见的查询操作由于减少了需要扫描的记录，使得单表单次查询所需检索的行数变少，减少了磁盘IO、时延变短。<h5 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h5></li>
+<li>无法解决单表数据量太大的问题。<h5 id="1-2-横向切分-水平切分"><a href="#1-2-横向切分-水平切分" class="headerlink" title="1.2 横向切分/水平切分"></a>1.2 横向切分/水平切分</h5>把原本存储于一个表的数据分块存储到多个表上<br>当一个表中的数据量过大时，我们可以把该表的数据按照某种规则，进行划分，然后存储到多个结构相同的表上。<br>例如：我们 userDB 中的 userTable 中数据量很大，那么可以把 userDB 切分为结构相同的多个 userDB：part0DB、part1DB 等，再将 userDB 上的 userTable，切分为很多 userTable：userTable0、userTable1 等，然后将这些表按照一定的规则存储到多个 userDB 上。</li>
+</ul>
+<h5 id="优点：-1"><a href="#优点：-1" class="headerlink" title="优点："></a>优点：</h5><ul>
+<li>单表的并发能力提高了，磁盘的I/O性能也提高了</li>
+<li>如果出现高并发的话，总表可以根据不同的查询，将并发压力发到不同的小表里。<h5 id="缺点：-1"><a href="#缺点：-1" class="headerlink" title="缺点："></a>缺点：</h5></li>
+<li>无法实现表连接查询<h5 id="2-逻辑库-Schema"><a href="#2-逻辑库-Schema" class="headerlink" title="2.逻辑库-Schema"></a>2.逻辑库-Schema</h5>MyCat中定义的database是逻辑上存在的，但物理上是不存在的。<br>主要是针对纵向切分提供的概念。</li>
+</ul>
+<h5 id="3-逻辑表-Table"><a href="#3-逻辑表-Table" class="headerlink" title="3.逻辑表-Table"></a>3.逻辑表-Table</h5><p>MyCat中定义的table，是逻辑上存在，物理上不存在的<br>主要是针对横向切分提供的概念</p>
+<h5 id="4-默认端口"><a href="#4-默认端口" class="headerlink" title="4.默认端口"></a>4.默认端口</h5><p>MySql：3306<br>MyCat：8066<br>Tomcat：8080<br>Oracle：1521<br>nginx：80<br>http：协议默认端口80<br>redis：6379</p>
+<h5 id="5-数据主机-DataHost"><a href="#5-数据主机-DataHost" class="headerlink" title="5.数据主机-DataHost"></a>5.数据主机-DataHost</h5><p>物理MySql存放的主机地址，可以使用主机名，IP，域名定义。</p>
+<h5 id="6-数据节点-DataNode"><a href="#6-数据节点-DataNode" class="headerlink" title="6.数据节点-DataNode"></a>6.数据节点-DataNode</h5><p>配置物理的database。数据保存的物理节点就是database</p>
+<h5 id="7-分片规则"><a href="#7-分片规则" class="headerlink" title="7.分片规则"></a>7.分片规则</h5><p>当控制数据的时候，如何访问物理database和table？<br>就是访问dataHost和dataNode的算法<br>在Mysql处理CRUD时，如何访问datahost和datanode的算法？如：哈希算法，crc32算法等。</p>
+<h3 id="三、MyCat的安装及使用"><a href="#三、MyCat的安装及使用" class="headerlink" title="三、MyCat的安装及使用"></a>三、MyCat的安装及使用</h3><h5 id="3-1-配置mysql的主从复制"><a href="#3-1-配置mysql的主从复制" class="headerlink" title="3.1. 配置mysql的主从复制"></a>3.1. 配置mysql的主从复制</h5><p>1、 安装mysql主从数据库，并修改my.cnf配置项</p>
+<p>2、 打开主库输入命令<code>show master slave</code>查看file和position参数 后面关联时候要用</p>
+<p>3、 创建用户用于从库访问主库</p>
+<p>4、 配置主从信息，打开从库输入<code>change master to master_host=&#39;主库ip&#39;,master_port=主库端口,master_user=&#39;主库登陆账号&#39;,master_password=&#39;主库密码&#39;,master_log_file=&#39;第2步中的file&#39;,master_log_pos=第2步中的position;</code></p>
+<p>5、 启动从库slave功能 <code>start slave</code></p>
+<p>6、 查看slave配置 <code>show slave status\G;</code> 若<code>Slave_IO_Running: Yes Slave_SQL_Running: Yes</code>则表示主从复制配置成功。</p>
+<h5 id="3-2-安装MyCat"><a href="#3-2-安装MyCat" class="headerlink" title="3.2. 安装MyCat"></a>3.2. 安装MyCat</h5><p>笔者用的是docker安装的，贴docker-compose代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">mycat:</span><br><span class="line">    image: qiyue&#x2F;mycat:1.6.5</span><br><span class="line">    container_name: mycat</span><br><span class="line">    networks:</span><br><span class="line">      redis-network:</span><br><span class="line">        ipv4_address: 192.168.1.2</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;8066:8066&quot;</span><br><span class="line">      - &quot;9066:9066&quot;</span><br><span class="line">    depends_on:</span><br><span class="line">      - mysql-master</span><br><span class="line">      - mysql-slave</span><br><span class="line">    volumes:</span><br><span class="line">      - &quot;$&#123;wwwdata&#125;&#x2F;mycat&#x2F;conf&#x2F;:&#x2F;usr&#x2F;local&#x2F;mycat&#x2F;conf&#x2F;&quot;</span><br></pre></td></tr></table></figure>
+<p>需要注意的是映射目录必须和容器内保持一致 不然会启动失败，可先下载压缩文件复制出conf文件夹，便于接下来的配置项修改。</p>
+<h5 id="3-3-配置MyCat"><a href="#3-3-配置MyCat" class="headerlink" title="3.3. 配置MyCat"></a>3.3. 配置MyCat</h5><p>Mycat常用配置文件有三个：</p>
+<blockquote>
+<p>server.xml</p>
+</blockquote>
+<blockquote>
+<p>schema.xml</p>
+</blockquote>
+<blockquote>
+<p>rule.xml</p>
+</blockquote>
+<h5 id="3-3-1-server-xml"><a href="#3-3-1-server-xml" class="headerlink" title="3.3.1. server.xml"></a>3.3.1. server.xml</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;property name&#x3D;&quot;serverPort&quot;&gt;8066&lt;&#x2F;property&gt; &lt;!-- Mycat 服务端口号 --&gt;</span><br><span class="line">&lt;property name&#x3D;&quot;managerPort&quot;&gt;9066&lt;&#x2F;property&gt;&lt;!-- Mycat 管理端口号 --&gt;</span><br><span class="line">&lt;user name&#x3D;&quot;root&quot;&gt;&lt;!-- mycat 用户名 --&gt;</span><br><span class="line">  &lt;property name&#x3D;&quot;password&quot;&gt;密码&lt;&#x2F;property&gt;</span><br><span class="line">  &lt;property name&#x3D;&quot;schemas&quot;&gt;用户可访问逻辑库名&lt;&#x2F;property&gt;</span><br><span class="line">  &lt;!-- 表级 DML 权限设置 --&gt;</span><br><span class="line">  &lt;!-- 不检查 SQL 语法结果 dml 权限顺序为：insert(新增),update(修改),select(查询),delete(删除),0000--&gt; 1111,0 为禁止权限，1 为开启权限。</span><br><span class="line">  &lt;privileges check&#x3D;&quot;false&quot;&gt;</span><br><span class="line">  &lt;schema name&#x3D;&quot;逻辑库名&quot; dml&#x3D;&quot;0110&quot; &gt;</span><br><span class="line">  &lt;table name&#x3D;&quot;逻辑表名&quot; dml&#x3D;&quot;0000&quot;&gt;&lt;&#x2F;table&gt;</span><br><span class="line">  &lt;table name&#x3D;&quot;tb02&quot; dml&#x3D;&quot;1111&quot;&gt;&lt;&#x2F;table&gt;</span><br><span class="line">   &lt;&#x2F;schema&gt;</span><br><span class="line">   &lt;&#x2F;privileges&gt;</span><br><span class="line">   --&gt;</span><br><span class="line"> &lt;&#x2F;user&gt;</span><br><span class="line"> &lt;user name&#x3D;&quot;user&quot;&gt;&lt;!-- 其他用户名 --&gt;</span><br><span class="line"> &lt;property name&#x3D;&quot;password&quot;&gt;密码&lt;&#x2F;property&gt;</span><br><span class="line"> &lt;property name&#x3D;&quot;schemas&quot;&gt;可访问逻辑库名&lt;&#x2F;property&gt;</span><br><span class="line"> &lt;property name&#x3D;&quot;readOnly&quot;&gt;是否只读&lt;&#x2F;property&gt;</span><br><span class="line"> &lt;&#x2F;user&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-3-2-schema-xml"><a href="#3-3-2-schema-xml" class="headerlink" title="3.3.2. schema.xml"></a>3.3.2. schema.xml</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE mycat:schema SYSTEM &quot;schema.dtd&quot;&gt;</span><br><span class="line">&lt;mycat:schema xmlns:mycat&#x3D;&quot;http:&#x2F;&#x2F;io.mycat&#x2F;&quot;&gt;</span><br><span class="line">    &lt;schema name&#x3D;&quot;test&quot; checkSQLschema&#x3D;&quot;false&quot; sqlMaxLimit&#x3D;&quot;100&quot;&gt;</span><br><span class="line">        &lt;table name&#x3D;&quot;tb_user&quot;   primaryKey&#x3D;&quot;id&quot;  autoIncrement&#x3D;&quot;true&quot;  dataNode&#x3D;&quot;dn1,dn2,dn3,dn4&quot; rule&#x3D;&quot;userrule&quot; &#x2F;&gt;</span><br><span class="line">        &lt;table name&#x3D;&quot;tb_category&quot; primaryKey&#x3D;&quot;id&quot; dataNode&#x3D;&quot;dn1,dn2,dn3,dn4&quot; rule&#x3D;&quot;categoryrule&quot; &#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;schema&gt;</span><br><span class="line">    &lt;dataNode name&#x3D;&quot;dn1&quot; dataHost&#x3D;&quot;localhost1&quot; database&#x3D;&quot;db1&quot; &#x2F;&gt;</span><br><span class="line">    &lt;dataNode name&#x3D;&quot;dn2&quot; dataHost&#x3D;&quot;localhost1&quot; database&#x3D;&quot;db2&quot; &#x2F;&gt;</span><br><span class="line">    &lt;dataNode name&#x3D;&quot;dn3&quot; dataHost&#x3D;&quot;localhost1&quot; database&#x3D;&quot;db3&quot; &#x2F;&gt;</span><br><span class="line">    &lt;dataNode name&#x3D;&quot;dn4&quot; dataHost&#x3D;&quot;localhost1&quot; database&#x3D;&quot;db4&quot; &#x2F;&gt;</span><br><span class="line">    &lt;dataHost name&#x3D;&quot;localhost1&quot; maxCon&#x3D;&quot;1000&quot; minCon&#x3D;&quot;10&quot; balance&#x3D;&quot;1&quot;</span><br><span class="line">              writeType&#x3D;&quot;0&quot; dbType&#x3D;&quot;mysql&quot; dbDriver&#x3D;&quot;native&quot; switchType&#x3D;&quot;1&quot;  slaveThreshold&#x3D;&quot;100&quot;&gt;</span><br><span class="line">        &lt;heartbeat&gt;select user()&lt;&#x2F;heartbeat&gt;</span><br><span class="line">        &lt;writeHost host&#x3D;&quot;hostM1&quot; url&#x3D;&quot;192.168.1.4:3306&quot; user&#x3D;&quot;root&quot;</span><br><span class="line">                   password&#x3D;&quot;xiaocai&quot;&gt;</span><br><span class="line">            &lt;readHost host&#x3D;&quot;hostS2&quot; url&#x3D;&quot;192.168.1.3:3306&quot; user&#x3D;&quot;root&quot; password&#x3D;&quot;xiaocai&quot; &#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;writeHost&gt;</span><br><span class="line">    &lt;&#x2F;dataHost&gt;</span><br><span class="line">&lt;&#x2F;mycat:schema&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="3-3-3-rule-xml"><a href="#3-3-3-rule-xml" class="headerlink" title="3.3.3. rule.xml"></a>3.3.3. rule.xml</h5><p>用于定义分片规则的配置文件</p>
+<p>mycat 默认的分片规则: 以 500 万为单位,实现分片规则</p>
+<p>逻辑库 A 对应 dataNode - db1 和 db2. 1-500 万保存在 db1 中, 500 万零 1 到 1000 万保存在 db2 中,1000 万零 1 到 1500 万保存在 db1 中.依次类推.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;tableRule name&#x3D;&quot;rule1&quot;&gt;</span><br><span class="line">  &lt;rule&gt;</span><br><span class="line">  &lt;columns&gt;id&lt;&#x2F;columns&gt;</span><br><span class="line">  &lt;algorithm&gt;func1&lt;&#x2F;algorithm&gt;</span><br><span class="line">  &lt;&#x2F;rule&gt;</span><br><span class="line">&lt;&#x2F;tableRule&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="四、启动MyCat"><a href="#四、启动MyCat" class="headerlink" title="四、启动MyCat"></a>四、启动MyCat</h3><ul>
+<li><p>配置实际mysql数据库,在mysql主上建4个数据库db1,db2,db3,db4(不要操作从机)</p>
+</li>
+<li><p>通过8066端口连接mycat，操作逻辑库，逻辑表，即可在mysql主从库中看到实现了分库分表，读写分离</p>
+</li>
+</ul>
+
+        
+    </section>
+</article>
+
+
+    <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
             <a href="/2020/07/07/Redis%E6%8C%81%E4%B9%85%E5%8C%96/">Redis持久化</a>
         </h1>
         
