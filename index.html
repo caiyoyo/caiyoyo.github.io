@@ -148,6 +148,68 @@
     <header class="article-header">
         
         <h1 itemprop="name">
+            <a href="/2020/07/17/RabbitMQ%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/">RabbitMQ快速入门</a>
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.collen.cn/index.html">
+    
+    <i class="icon-calendar vm"></i>
+    
+    <time class="vm" datetime="2020-07-17T01:39:38.000Z" itemprop="datePublished">2020-07-17</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag vm"></i>
+    <a class="article-tag-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="1-通过一个故事来理解消息队列"><a href="#1-通过一个故事来理解消息队列" class="headerlink" title="1.通过一个故事来理解消息队列"></a>1.通过一个故事来理解消息队列</h3><p><strong>故事原型：</strong></p>
+<blockquote>
+<p>比如，小时候你爸爸要出差了，因为赶时间，家里的事情他没做完，但他又没能联系上你。</p>
+</blockquote>
+<blockquote>
+<p>于是他给你留下一张小纸条要你去做，内容是这样的（其实这张小纸条就是一个消息队列）：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">收碗筷</span><br><span class="line"> </span><br><span class="line">​擦饭桌</span><br><span class="line"></span><br><span class="line">​拖地</span><br></pre></td></tr></table></figure><br>你根据小纸条上面的3条消息，依次做完了这3件事。</p>
+</blockquote>
+<p><strong>故事解读：</strong></p>
+<blockquote>
+<p>其实这张小纸条就是一个消息队列中间件，我们可以当它是RabbitMQ， 而你爸爸就是消息的生产者，你是消息的消费者.</p>
+</blockquote>
+<blockquote>
+<p>正如你爸爸（消息生产者）通过小纸条（消息队列）让你（消息消费者）完成了3件事。</p>
+</blockquote>
+<blockquote>
+<p>程序A（消息生产者）也可以通过RabbitMQ（消息队列） 让其它程序（消息消费者）去做事。</p>
+</blockquote>
+<blockquote>
+<p>没错，这就是RabbitMQ，一款消息队列中间件</p>
+</blockquote>
+<h3 id="2-RabbitMQ的诞生和概念"><a href="#2-RabbitMQ的诞生和概念" class="headerlink" title="2.RabbitMQ的诞生和概念"></a>2.RabbitMQ的诞生和概念</h3>
+        
+        <p class="article-more-link">
+            <a href="/2020/07/17/RabbitMQ%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/#more">
+                <span class="vm">阅读更多</span>
+                <i class="icon-arrow-double-right vm"></i>    
+            </a>
+        </p>
+        
+        
+    </section>
+</article>
+
+
+    <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
             <a href="/2020/07/16/Kibana%E5%85%A5%E9%97%A8%E7%AE%80%E8%BF%B0/">Kibana入门简述</a>
         </h1>
         

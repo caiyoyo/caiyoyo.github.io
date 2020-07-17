@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+
+    
+
+    
+
+    <title>RabbitMQ快速入门 | Collen随笔</title>
+    <meta name="author" content="Collen" />
+    <meta name="keywords" content="PHP,Docker,Redis,Swoole" />
+    <meta name="description" content="1.通过一个故事来理解消息队列故事原型：比如，小时候你爸爸要出差了，因为赶时间，家里的事情他没做完，但他又没能联系上你。于是他给你留下一张小纸条要你去做，内容是这样的（其实这张小纸条就是一个消息队列）： 12345收碗筷 ​擦饭桌​拖地你根据小纸条上面的3条消息，依次做完了这3件事。故事解读：其实这张小纸条就是一个消息队列中间件，我们可以当它是RabbitMQ， 而你爸爸就是消息的生产者，你是消息的消费者.正如你爸爸（消息生产者）通过小纸条（消息队列）让你（消息消费..." />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+
+    
+    <link rel="alternate" href="/atom.xml" title="Collen随笔" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.ico">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!--[if lt IE 9]><style type="text/css">.nav-inner {top:0;}.author-meta {position:static;top:0;}.search-form {height:36px;}</style><script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script><![endif]-->
+<meta name="generator" content="Hexo 4.2.1"></head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">Collen随笔</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/categories/back-end">
+                <span class="nav-text">后端</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/atom.xml">
+                <span class="nav-text">订阅</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.collen.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-通过一个故事来理解消息队列"><span class="toc-number">1.</span> <span class="toc-text">1.通过一个故事来理解消息队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-RabbitMQ的诞生和概念"><span class="toc-number">2.</span> <span class="toc-text">2.RabbitMQ的诞生和概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-RabbitMQ的AMQP协议"><span class="toc-number">3.</span> <span class="toc-text">3.RabbitMQ的AMQP协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-RabbitMQ的安装及使用"><span class="toc-number">4.</span> <span class="toc-text">4.RabbitMQ的安装及使用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-yum安装erlang环境"><span class="toc-number">4.0.1.</span> <span class="toc-text">1.yum安装erlang环境</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-安装rabbitmq"><span class="toc-number">4.0.2.</span> <span class="toc-text">2.安装rabbitmq</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-安装常见报错"><span class="toc-number">4.0.3.</span> <span class="toc-text">3.安装常见报错</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-PHP使用rabbitmq"><span class="toc-number">4.0.4.</span> <span class="toc-text">4.PHP使用rabbitmq</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            RabbitMQ快速入门
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.collen.cn/2020/07/17/RabbitMQ%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/index.html">
+    
+    <i class="icon-calendar vm"></i>
+    
+    <time class="vm" datetime="2020-07-17T01:39:38.000Z" itemprop="datePublished">2020-07-17</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag vm"></i>
+    <a class="article-tag-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h3 id="1-通过一个故事来理解消息队列"><a href="#1-通过一个故事来理解消息队列" class="headerlink" title="1.通过一个故事来理解消息队列"></a>1.通过一个故事来理解消息队列</h3><p><strong>故事原型：</strong></p>
+<blockquote>
+<p>比如，小时候你爸爸要出差了，因为赶时间，家里的事情他没做完，但他又没能联系上你。</p>
+</blockquote>
+<blockquote>
+<p>于是他给你留下一张小纸条要你去做，内容是这样的（其实这张小纸条就是一个消息队列）：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">收碗筷</span><br><span class="line"> </span><br><span class="line">​擦饭桌</span><br><span class="line"></span><br><span class="line">​拖地</span><br></pre></td></tr></table></figure><br>你根据小纸条上面的3条消息，依次做完了这3件事。</p>
+</blockquote>
+<p><strong>故事解读：</strong></p>
+<blockquote>
+<p>其实这张小纸条就是一个消息队列中间件，我们可以当它是RabbitMQ， 而你爸爸就是消息的生产者，你是消息的消费者.</p>
+</blockquote>
+<blockquote>
+<p>正如你爸爸（消息生产者）通过小纸条（消息队列）让你（消息消费者）完成了3件事。</p>
+</blockquote>
+<blockquote>
+<p>程序A（消息生产者）也可以通过RabbitMQ（消息队列） 让其它程序（消息消费者）去做事。</p>
+</blockquote>
+<blockquote>
+<p>没错，这就是RabbitMQ，一款消息队列中间件</p>
+</blockquote>
+<h3 id="2-RabbitMQ的诞生和概念"><a href="#2-RabbitMQ的诞生和概念" class="headerlink" title="2.RabbitMQ的诞生和概念"></a>2.RabbitMQ的诞生和概念</h3> <a id="more"></a>
+
+<p><strong>消息队列的由来：</strong></p>
+<ul>
+<li><p>分布式系统已成为当前系统架构的主流, 而消息队列在分布式系统中作为消息中间件，能为分布式系统中各个应用提供会话平台, 比如:连接PHP和java（比如上面这个故事中的爸爸和儿子）。</p>
+</li>
+<li><p>其次，用多进程异步操作取代单进程同步操作, 从而满足高性能系统架构需求。比如爸爸通过消息队列让儿子帮他洗碗，那么爸爸的办事效率是不是高了很多？ 同样的，比如双十一你到淘宝去下个单，可能感到不 卡了，其实淘宝的下单进程已经把很多订单相关逻辑交给其它进程去处理了，那么下单进程就会很快。</p>
+</li>
+<li><p>其次，可以防止服务器一下子做很多事情。消息队列采用队列的形式，消费者读取队列里面的消息的时候是一条一条读取的，服务器不会超负载。比如上面故事中的儿子，不是 收碗筷 擦饭桌 拖地一起干，二是按 着消息队列的顺序一件一件干，这样儿子不会超负载，服务器也是如此。</p>
+</li>
+</ul>
+<p><strong>消息队列的概念：</strong></p>
+<p>从上面消息队列的由来，我们可以进一步大致了解下消息队列的概念：</p>
+<blockquote>
+<p>消息队列中间件是分布式系统中重要的组件，主要解决应用解耦，异步消息，流量削锋等问题，实现高性能，高可用，可伸缩和最终一致性架构。</p>
+</blockquote>
+<p><strong>消息队列的种类：</strong></p>
+<blockquote>
+<p>目前使用较多的消息队列有ActiveMQ，RabbitMQ，Redis的list和订阅,ZeroMQ，Kafka，阿里的RocketMQ. </p>
+</blockquote>
+<h3 id="3-RabbitMQ的AMQP协议"><a href="#3-RabbitMQ的AMQP协议" class="headerlink" title="3.RabbitMQ的AMQP协议"></a>3.RabbitMQ的AMQP协议</h3><p>RabbitMQ采用了AMQP协议，即Advanced Message Queuing Protocol，一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。</p>
+<p>图解AMQP协议：<br><img src="http://static.collen.cn/AMQP.png" alt="AMQP.png"></p>
+<ul>
+<li>生产者（Producer）（见上图中的生产者）：发送消息的应用。 </li>
+<li>消费者（Consumer）（见上图中的消费者）：接收消息的应用。 </li>
+<li>队列（Queue）（见上图中的queue）：存储消息的缓存，一个队列queue存多条消息。 </li>
+<li>消息（Message）：由生产者通过RabbitMQ发送给消费者的信息，消息存储在消息队列queue中。 </li>
+<li>连接（Connection）：连接RabbitMQ和应用服务器的TCP连接（上图中发送消息和接收消息都是必须先建立连接的）。 </li>
+<li>通道（Channel）：连接里的一个虚拟通道。当你通过消息队列发送或者接收消息时，这个操作都是通过通道进行的。 </li>
+<li>交换机（Exchange）（见上图中的交换机）：生产者发送消息是先发到交换机，再由交换机发送到队列里面，并最终保存在队列里面。就好比寄快递，台湾寄到长沙，可能要先寄到上海，那么上海就是这个交换机。 </li>
+<li>绑定（Binding）：绑定是队列和交换机的一个关联连接。 </li>
+<li>路由键（Routing Key）（见上图中的Routing Key）：路由键是供交换机查看并根据键来决定如何分发消息到列队的一个键。路由键可以说是消息的目的地址。 </li>
+<li>用户（Users）：在RabbitMQ里，是可以通过指定的用户名和密码来进行连接的。每个用户可以分配不同的权限，例如读权限，写权限以及在实例里进行配置的权限。</li>
+</ul>
+<h3 id="4-RabbitMQ的安装及使用"><a href="#4-RabbitMQ的安装及使用" class="headerlink" title="4.RabbitMQ的安装及使用"></a>4.RabbitMQ的安装及使用</h3><h5 id="1-yum安装erlang环境"><a href="#1-yum安装erlang环境" class="headerlink" title="1.yum安装erlang环境"></a>1.yum安装erlang环境</h5><p>第一步：新增文件 /etc/yum.repos.d/rabbitmq_erlang.repo，在文件里面新增下面内容并保存：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">[rabbitmq_erlang] </span><br><span class="line">name&#x3D;rabbitmq_erlang </span><br><span class="line">baseurl&#x3D;https:&#x2F;&#x2F;packagecloud.io&#x2F;rabbitmq&#x2F;erlang&#x2F;el&#x2F;7&#x2F;$basearch </span><br><span class="line">repo_gpgcheck&#x3D;1 </span><br><span class="line">gpgcheck&#x3D;1 </span><br><span class="line">enabled&#x3D;1 </span><br><span class="line"># PackageCloud&#39;s repository key and RabbitMQ package signing key </span><br><span class="line">gpgkey&#x3D;https:&#x2F;&#x2F;packagecloud.io&#x2F;rabbitmq&#x2F;erlang&#x2F;gpgkey       </span><br><span class="line">       https:&#x2F;&#x2F;dl.bintray.com&#x2F;rabbitmq&#x2F;Keys&#x2F;rabbitmq-release-signing-key.asc </span><br><span class="line">sslverify&#x3D;1 </span><br><span class="line">sslcacert&#x3D;&#x2F;etc&#x2F;pki&#x2F;tls&#x2F;certs&#x2F;ca-bundle.crt </span><br><span class="line">metadata_expire&#x3D;300</span><br><span class="line"> </span><br><span class="line">[rabbitmq_erlang-source] </span><br><span class="line">name&#x3D;rabbitmq_erlang-source </span><br><span class="line">baseurl&#x3D;https:&#x2F;&#x2F;packagecloud.io&#x2F;rabbitmq&#x2F;erlang&#x2F;el&#x2F;7&#x2F;SRPMS </span><br><span class="line">repo_gpgcheck&#x3D;1 </span><br><span class="line">gpgcheck&#x3D;0 </span><br><span class="line">enabled&#x3D;1 </span><br><span class="line"># PackageCloud&#39;s repository key and RabbitMQ package signing key </span><br><span class="line">gpgkey&#x3D;https:&#x2F;&#x2F;packagecloud.io&#x2F;rabbitmq&#x2F;erlang&#x2F;gpgkey       </span><br><span class="line">       https:&#x2F;&#x2F;dl.bintray.com&#x2F;rabbitmq&#x2F;Keys&#x2F;rabbitmq-release-signing-key.asc </span><br><span class="line">sslverify&#x3D;1 </span><br><span class="line">sslcacert&#x3D;&#x2F;etc&#x2F;pki&#x2F;tls&#x2F;certs&#x2F;ca-bundle.crt </span><br><span class="line">metadata_expire&#x3D;300</span><br></pre></td></tr></table></figure>
+<p>第二步：在centos控制台输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install erlang</span><br></pre></td></tr></table></figure>
+
+<p>到此erlang环境安装完成</p>
+<h5 id="2-安装rabbitmq"><a href="#2-安装rabbitmq" class="headerlink" title="2.安装rabbitmq"></a>2.安装rabbitmq</h5><p>1、下载rpm包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;github.com&#x2F;rabbitmq&#x2F;rabbitmq-server&#x2F;releases&#x2F;download&#x2F;v3.8.1&#x2F;rabbitmq-server-3.8.1-1.el7.noarch.rpm</span><br></pre></td></tr></table></figure>
+<p>2、安装rpm包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install rabbitmq-server-3.8.1-1.el7.noarch.rpm</span><br></pre></td></tr></table></figure>
+<p>3、启动rabbitmq</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmq-server start</span><br></pre></td></tr></table></figure>
+<p>加入开机启动：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chkconfig rabbitmq-server on</span><br></pre></td></tr></table></figure>
+<p>4、执行命令，查看rabbitmq的状态</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl status</span><br></pre></td></tr></table></figure>
+<p><img src="http://static.collen.cn/status.png" alt="status.png"><br>至此，rabbitmq安装成功</p>
+<p>5、启用web管理插件，这样子才能支持浏览器访问rabbitmq</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure>
+<p>6、设置操作系统字符集utf-8</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim &#x2F;etc&#x2F;profile</span><br><span class="line">文件末尾加上: export LC_ALL&#x3D;en_US.UTF-8</span><br></pre></td></tr></table></figure>
+<p>然后执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source &#x2F;etc&#x2F;profile</span><br></pre></td></tr></table></figure>
+<p>7、增加远程访问web管理台用户及授权</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl add_user test 123456  #增加test用户，密码为123456</span><br><span class="line">rabbitmqctl  set_user_tags  test  administrator  #添加test角色为 administrator </span><br><span class="line">rabbitmqctl set_permissions -p &quot;&#x2F;&quot; test &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;  #给test用户授权</span><br><span class="line">rabbitmqctl list_users #查看用户是否已添加</span><br></pre></td></tr></table></figure>
+<p>8、浏览器输入ip:15672后用上面新增的用户密码进行访问，登录进入控制台<br><img src="http://static.collen.cn/rabbitmq.png" alt="rabbitmq.png"></p>
+<h5 id="3-安装常见报错"><a href="#3-安装常见报错" class="headerlink" title="3.安装常见报错"></a>3.安装常见报错</h5><p>安装erlang常见报错：</p>
+<ul>
+<li>执行yum install rabbitmq-server-3.8.1-1.el7.noarch.rpm时，提示erlang发生冲突了， 是我们安装erlang之前没有卸载干净之前系统自带的erlang的缘故</li>
+</ul>
+<p>解决方法：去卸载干净erlang，然后重新安装erlang</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">yum list | grep erlang </span><br><span class="line">yum -y remove erlang -* </span><br><span class="line">yum remove erlang.x86_64 </span><br><span class="line">rm -rf &#x2F;usr&#x2F;lib64&#x2F;erlang </span><br><span class="line">rm -rf &#x2F;var&#x2F;lib&#x2F;rabbitmq</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装成功后，在浏览器输入ip:15672后，无法访问：</li>
+</ul>
+<p>解决方法：关闭服务器防火墙</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br></pre></td></tr></table></figure>
+<p>如果是阿里云等第三方的服务器，还需要去后台开开放15672端口</p>
+<h5 id="4-PHP使用rabbitmq"><a href="#4-PHP使用rabbitmq" class="headerlink" title="4.PHP使用rabbitmq"></a>4.PHP使用rabbitmq</h5><p>先上消费者代码 consumer.php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">&#x2F;&#x2F;声明连接参数 </span><br><span class="line">$config &#x3D; array( </span><br><span class="line">    &#39;host&#39; &#x3D;&gt; &#39;127.0.0.1, </span><br><span class="line">    &#39;vhost&#39; &#x3D;&gt; &#39;&#x2F;&#39;, </span><br><span class="line">    &#39;port&#39; &#x3D;&gt; 5672, </span><br><span class="line">    &#39;login&#39; &#x3D;&gt; &#39;test&#39;, </span><br><span class="line">    &#39;password&#39; &#x3D;&gt; &#39;123456&#39; </span><br><span class="line">);</span><br><span class="line">&#x2F;&#x2F;连接broker </span><br><span class="line">$cnn &#x3D; new AMQPConnection($config);</span><br><span class="line">if (!$cnn-&gt;connect()) &#123; </span><br><span class="line">    echo &quot;Cannot connect to the broker&quot;; </span><br><span class="line">    exit(); </span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;在连接内创建一个通道 </span><br><span class="line">$ch &#x3D; new AMQPChannel($cnn); </span><br><span class="line">&#x2F;&#x2F;创建一个交换机 </span><br><span class="line">ex &#x3D; new AMQPExchange($ch); </span><br><span class="line">&#x2F;&#x2F;声明路由键 </span><br><span class="line">$routingKey &#x3D; &#39;key_1&#39;; </span><br><span class="line">&#x2F;&#x2F;声明交换机名称 </span><br><span class="line">$exchangeName &#x3D; &#39;exchange_1&#39;; </span><br><span class="line">&#x2F;&#x2F;设置交换机名称 </span><br><span class="line">$ex-&gt;setName($exchangeName); </span><br><span class="line">&#x2F;&#x2F;设置交换机类型 </span><br><span class="line">&#x2F;&#x2F;AMQP_EX_TYPE_DIRECT:直连交换机 </span><br><span class="line">&#x2F;&#x2F;AMQP_EX_TYPE_FANOUT:扇形交换机 </span><br><span class="line">&#x2F;&#x2F;AMQP_EX_TYPE_HEADERS:头交换机 </span><br><span class="line">&#x2F;&#x2F;AMQP_EX_TYPE_TOPIC:主题交换机 </span><br><span class="line">$ex-&gt;setType(AMQP_EX_TYPE_DIRECT); </span><br><span class="line">&#x2F;&#x2F;设置交换机持 </span><br><span class="line">$ex-&gt;setFlags(AMQP_DURABLE); </span><br><span class="line">&#x2F;&#x2F;声明交换机 </span><br><span class="line">$ex-&gt;declareExchange(); </span><br><span class="line">&#x2F;&#x2F;创建一个消息队列 </span><br><span class="line">$q &#x3D; new AMQPQueue($ch); </span><br><span class="line">&#x2F;&#x2F;设置队列名称</span><br><span class="line">$q-&gt;setName(&#39;queue_1&#39;); </span><br><span class="line">&#x2F;&#x2F;设置队列持久 </span><br><span class="line">$q-&gt;setFlags(AMQP_DURABLE); </span><br><span class="line">&#x2F;&#x2F;声明消息队列 </span><br><span class="line">$q-&gt;declareQueue(); </span><br><span class="line">&#x2F;&#x2F;交换机和队列通过$routingKey进行绑定 </span><br><span class="line">$q-&gt;bind($ex-&gt;getName(), $routingKey); </span><br><span class="line">&#x2F;&#x2F;接收消息并进行处理的回调方法 </span><br><span class="line">function receive($envelope, $queue) &#123;        </span><br><span class="line">    &#x2F;&#x2F;休眠两秒， </span><br><span class="line">    sleep(2);        </span><br><span class="line">    &#x2F;&#x2F;echo消息内容 </span><br><span class="line">    echo $envelope-&gt;getBody().&quot;\n&quot;;        </span><br><span class="line">    &#x2F;&#x2F;显式确认，队列收到消费者显式确认后，会删除该消息        </span><br><span class="line">    $queue-&gt;ack($envelope-&gt;getDeliveryTag()); </span><br><span class="line">&#125; </span><br><span class="line">&#x2F;&#x2F;设置消息队列消费者回调方法， </span><br><span class="line">$q-&gt;consume(&quot;receive&quot;);</span><br></pre></td></tr></table></figure>
+<p>以上是消费者代码，打开两个命令行/终端 输入 php consumer.php ,消费者开始阻塞获取消息</p>
+<p>消息队列已经创建，但消息数是0，因为此时还没有生产者 生产者代码 publisher.php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">$config &#x3D; array(        </span><br><span class="line">    &#39;host&#39; &#x3D;&gt; &#39;127.0.0.1&#39;,        </span><br><span class="line">    &#39;vhost&#39; &#x3D;&gt; &#39;&#x2F;&#39;,        </span><br><span class="line">    &#39;port&#39; &#x3D;&gt; 5672,        </span><br><span class="line">    &#39;login&#39; &#x3D;&gt; &#39;test&#39;, </span><br><span class="line">    &#39;password&#39; &#x3D;&gt; &#39;123456&#39; </span><br><span class="line">); </span><br><span class="line">$cnn &#x3D; new AMQPConnection($config);</span><br><span class="line">if (!$cnn-&gt;connect()) &#123;        </span><br><span class="line">    echo &quot;Cannot connect to the broker&quot;;        </span><br><span class="line">    exit(); </span><br><span class="line">&#125; </span><br><span class="line">$ch &#x3D; new AMQPChannel($cnn); </span><br><span class="line">$ex &#x3D; new AMQPExchange($ch); </span><br><span class="line">&#x2F;&#x2F;消息的路由键，一定要和消费者端一致 </span><br><span class="line">$routingKey &#x3D; &#39;key_1&#39;;</span><br><span class="line">&#x2F;&#x2F;交换机名称，一定要和消费者端一致， </span><br><span class="line">$exchangeName &#x3D; &#39;exchange_1&#39;; </span><br><span class="line">$ex-&gt;setName($exchangeName); </span><br><span class="line">$ex-&gt;setType(AMQP_EX_TYPE_DIRECT); </span><br><span class="line">$ex-&gt;setFlags(AMQP_DURABLE);</span><br><span class="line">$ex-&gt;declareExchange(); </span><br><span class="line">&#x2F;&#x2F;创建10个消息 </span><br><span class="line">for ($i&#x3D;1;$i&lt;&#x3D;10;$i++)&#123;            </span><br><span class="line">    &#x2F;&#x2F;消息内容            </span><br><span class="line">    $msg &#x3D; array(               </span><br><span class="line">        &#39;data&#39;  &#x3D;&gt; &#39;message_&#39;.$i,               </span><br><span class="line">        &#39;hello&#39; &#x3D;&gt; &#39;world&#39;,          </span><br><span class="line">    );        </span><br><span class="line">    &#x2F;&#x2F;发送消息到交换机，并返回发送结果        </span><br><span class="line">    &#x2F;&#x2F;delivery_mode:2声明消息持久，持久的队列+持久的消息在RabbitMQ重启后才不会丢失</span><br><span class="line">    echo &quot;Send Message:&quot;.$ex-&gt;publish(json_encode($msg), $routingKey , AMQP_NOPARAM, array(&#39;delivery_mode&#39; &#x3D;&gt; 2)).&quot;\n&quot;;</span><br><span class="line">    &#x2F;&#x2F;代码执行完毕后进程会自动退出 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上是生产者代码 在执行之前，先关掉前面的消费者，打开一个命令行/终端，输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php publisher.php</span><br></pre></td></tr></table></figure>
+<p>由于生产者不需要阻塞，执行完进程便退出，所以现在RabbitMQ管理界面中既没有Connections也没有Channels，但是Queues已经被Exchanges投递过去了10条消息.</p>
+<p>因为我们执行生产者之前已经关掉了消费者，所以此时消息在队列中等待获取; 因为在发送消息时设置了 delivery_mode:2 来声明消息持久化，此时如果重启RabbitMQ，消息还会恢复;此时重新执行消费者，输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php consumer.php</span><br></pre></td></tr></table></figure>
+<p>即可看到消息被消费。</p>
+<p><strong>提醒：生产者在生产消息时，如果不存在指定队列，并且没有创建队列，或者队列存在但消息路由键和交换机与队列绑定的键 生产者在生产消息时，如果不存在指定队列，并且没有创建队列，或者队列存在但消息路由键和交换机与队列绑定的键(路由规则 路由规则)不一致（直连交换机必须一致） 不一致（直连交换机必须一致）,则消息会被交换机丢弃。</strong></p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2020/07/16/Kibana%E5%85%A5%E9%97%A8%E7%AE%80%E8%BF%B0/" class="article-next" title="Kibana入门简述"><i class="icon-arrow-right"></i></a>
+
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "caiyoyo.github.io",
+        owner: "collen",
+        admin: ["collen"],
+        id: "2020/07/17/RabbitMQ快速入门",
+        distractionFreeMode: true,
+        title: "RabbitMQ快速入门",
+        body: "http://blog.collen.cn/2020/07/17/RabbitMQ%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/",
+        labels: ["rabbitmq"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?e4027971a230b210f4671f485b33846a";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://unpkg.com/jquery@1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle('normal', slideDone);
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp('normal', slideDone);
+            }, 3000);
+        }
+
+        function slideDone() {
+            if (nodes.navInner.css('display') !== 'none') {
+                nodes.navInner.css('display', '');
+            }
+        }
+
+        $(window).on('resize', function() {
+            console.log($(this).width())
+            if ($(this).width() > 960) {
+                nodes.navInner.css('display', '');
+            }
+        });
+    });
+    </script>
+    
+        
+<script src="/js/scrollspy.min.js"></script>
+
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>
