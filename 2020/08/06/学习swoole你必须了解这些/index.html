@@ -150,9 +150,10 @@
 <h5 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h5><ol>
 <li>特殊字符方式<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F; swoole_tcp_client</span><br><span class="line">for ($i&#x3D;0; $i &lt; 100; $i++) &#123;</span><br><span class="line">    $client-&gt;send(&quot;hello world\i&quot;);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; swoole_tcp_server</span><br><span class="line">&#x2F;&#x2F; 监听数据接收事件</span><br><span class="line">$serv-&gt;on(&#39;Receive&#39;, function ($serv, $fd, $from_id, $data) &#123;</span><br><span class="line">    &#x2F;&#x2F; 接收客户端的想你想</span><br><span class="line">    var_dump(explode(&#39;\i&#39;, $data));</span><br><span class="line">    &#x2F;&#x2F; echo &quot;接收到&quot;.$fd.&quot;信息的&quot;.$data.&quot;\n&quot;;</span><br><span class="line">    &#x2F;&#x2F; echo &quot;接收到&quot;.$fd.&quot;信息&quot;.&quot;\n&quot;;</span><br><span class="line">    $serv-&gt;send($fd, &quot;Server: &quot;);</span><br><span class="line">&#125;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></li>
 <li>统一粘包标准（固定包头+包体协议）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F; client 通过pack进行组包</span><br><span class="line">for ($i&#x3D;0; $i &lt; 10; $i++) &#123;</span><br><span class="line">    &#x2F;&#x2F; 组包</span><br><span class="line">    &#x2F;&#x2F; msg protocol</span><br><span class="line">    &#x2F;&#x2F; | ---- dataLen ---- | data |</span><br><span class="line">    &#x2F;&#x2F; | - fixed 2bytes - |</span><br><span class="line">    $context &#x3D; &quot;123&quot;;</span><br><span class="line">    $len &#x3D; pack(&quot;n&quot;, strlen($context));</span><br><span class="line">    var_dump($len);</span><br><span class="line">    $send &#x3D; $len . $context;</span><br><span class="line">    &#x2F;&#x2F; var_dump($send);</span><br><span class="line">    $client-&gt;send($send);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; server</span><br><span class="line">&#x2F;&#x2F;监听数据接收事件</span><br><span class="line">$serv-&gt;on(&#39;Receive&#39;, function ($serv, $fd, $from_id, $data)&#123;</span><br><span class="line">    var_dump($data);</span><br><span class="line">    $fooLen &#x3D; unpack(&quot;n&quot;, substr($data, $count, 2))[1];</span><br><span class="line">    var_dump($fooLen);</span><br><span class="line">    $foo &#x3D; substr($data, $count + 2, $fooLen);</span><br><span class="line">    var_dump($foo);</span><br><span class="line">    $serv-&gt;send($fd, &quot;Server: &quot;);</span><br><span class="line">&#125;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Swoole进程结构"><a href="#Swoole进程结构" class="headerlink" title="Swoole进程结构"></a>Swoole进程结构</h3><h3 id="1-结构分层"><a href="#1-结构分层" class="headerlink" title="1.结构分层"></a>1.结构分层</h3></li>
+
+</li>
 </ol>
-<ul>
+<h3 id="Swoole进程结构"><a href="#Swoole进程结构" class="headerlink" title="Swoole进程结构"></a>Swoole进程结构</h3><h3 id="1-结构分层"><a href="#1-结构分层" class="headerlink" title="1.结构分层"></a>1.结构分层</h3><ul>
 <li>master：主进程</li>
 <li>manager：管理进程 </li>
 <li>worker：工作进程 </li>
@@ -175,28 +176,22 @@
 <h5 id="1-3-worker"><a href="#1-3-worker" class="headerlink" title="1.3.worker"></a>1.3.worker</h5><p>worker 进程属于swoole的主逻辑进程，用户处理客户端的一系列请求，接受由Reactor线程投递的请求数据包，并执行PHP回调函数处理数据生成响应数据并发给Reactor线程，由Reactor线程发送给TCP客户端可以是异 步非阻塞模式，也可以是同步阻塞模式</p>
 <h5 id="1-4-task"><a href="#1-4-task" class="headerlink" title="1.4.task"></a>1.4.task</h5><p>taskWorker进程这一进程是swoole提供的异步工作进程，这些进程主要用于处理一些耗时较长的同步任务，在worker进程当中投递过来。</p>
 <h3 id="网络IO模型及阻塞模型"><a href="#网络IO模型及阻塞模型" class="headerlink" title="网络IO模型及阻塞模型"></a>网络IO模型及阻塞模型</h3><p>###5大io模型</p>
-<ol>
-<li>阻塞式I/O模型(blocking i/o)<blockquote>
+<p>1.阻塞式I/O模型(blocking i/o)</p>
+<blockquote>
 <p>在阻塞式I/O模型中，应用程序在从调用recvfrom开始到它返回有数据报准备好这段时间是阻塞的，recvfrom返回成功后，应用进程开始处理数据报</p>
 </blockquote>
-</li>
-</ol>
 <p>2.非阻塞式I/O模型(non-blocking i/o)</p>
 <blockquote>
 <p>在非阻塞式I/O模型中，应用程序把一个套接口设置为非阻塞就是告诉内核，当所请求的I/O操作 无法完成时，不要将进程睡眠，而是返回-一个错误，应用程序基于I/O操作函数将不断的轮询数据 是否已经准备好，如<br>果没有准备好，继续轮询，直到数据准备好为止</p>
 </blockquote>
-<ol start="3">
-<li><p>I/O复用模型(i/o multiplexing)</p>
+<p>3.I/O复用模型(i/o multiplexing)</p>
 <blockquote>
 <p>在I/O复用模型中，会用到select或poll函数或epoll函数(Linux2.6以后的内核开始支持)， 这两个函数也会使进程阻塞，但是和阻塞I/O所不同的的，这两个函数可以同时阻塞多个I/O操作，而且可以同时对多个读操作，多<br>个写操作的I/0函数进行检测，直到有数据可读或可写时，才填正调用I/O操作函数</p>
 </blockquote>
-</li>
-<li><p>信号驱动式I/O模型(signal-driven i/o)</p>
+<p>4.信号驱动式I/O模型(signal-driven i/o)</p>
 <blockquote>
 <p>由POSIX规范定义，应用程序告知内核启动某个操作，并让内核在整个操作( 包括将数据从内核拷贝到应用程序的缓冲区)完成后通知应用程序。这种模型与信号驱动模型的主要区别在于:信号驱动I/O是由内核通知应用程序何时启动一个I/O操作， 而异步I/O模型是由内核通知应用程序I/O操作何时完成</p>
 </blockquote>
-</li>
-</ol>
 <p>5.异步I/O模型(asynchronous i/o)</p>
 <blockquote>
 <p>由POSIX规范定义，应用程序告知内核启动某个操作，并让内核在整个操作( 包括将数据从内核拷贝到应用程序的缓冲区)完成后通知应用程序。这种模型与信号驱动模型的主要区别在于:信号驱动I/O是由内核通知应用程序何时启动一个I/O操作， 而异步I/O模型是由内核通知应用程序 I/O操作何时完成</p>
