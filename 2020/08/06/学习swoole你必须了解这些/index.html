@@ -136,6 +136,7 @@
 <h3 id="2-tcp与udp介绍与区别"><a href="#2-tcp与udp介绍与区别" class="headerlink" title="2.tcp与udp介绍与区别"></a>2.tcp与udp介绍与区别</h3><blockquote>
 <p><strong>TCP(Transmission Control Protocol传输控制协议):</strong>  是一 种面向连接的、可靠的、基于字节流的传输层通信协议，使用三次握手协议建立连接、四次挥手断开连接。面向连接意味着两个使用TCP的应用(通常是一个<br>客户端和一 个服务器)在彼此交换数据包之前必须先建立一一个TCP连接。在一一个TCP连接中，仅有两方进行彼此通信，广播和多播不能用TCP。TCP协议的作用是，保证数据通信的完整性和可靠性，防止丢包。TCP把<br>连接作为最基本的对象,每-条TCP连接都有两个端点, 这种端点我们叫作套接字(socket),端口号拼接到IP地址即构成了套接字。<br><strong>UDP(User Datagram Protocol用户数据报协议):</strong> 是OSI(Open System Interconnection开放式系统互联)参考模型中- -种无连接的传输层协议，提供面向事务的简单不可靠信息传送服务。UDP协议的主要作用是将网<br>络数据流量压缩成数据包的形式。</p>
 </blockquote>
+<a id="more"></a>
 <h5 id="区别"><a href="#区别" class="headerlink" title="区别:"></a>区别:</h5><ol>
 <li>TCP提供的是面向连接的、可靠的数据流传输; UDP提供的是非面向连接的、不可靠的数据流传输。</li>
 <li>TCP提供可靠的服务，通过TCP连接传送的数据，无差错、不丢失、不重复，按序到达; UDP尽最大努力交付，即不保证可靠交付。</li>

@@ -180,71 +180,14 @@
 <h3 id="2-tcp与udp介绍与区别"><a href="#2-tcp与udp介绍与区别" class="headerlink" title="2.tcp与udp介绍与区别"></a>2.tcp与udp介绍与区别</h3><blockquote>
 <p><strong>TCP(Transmission Control Protocol传输控制协议):</strong>  是一 种面向连接的、可靠的、基于字节流的传输层通信协议，使用三次握手协议建立连接、四次挥手断开连接。面向连接意味着两个使用TCP的应用(通常是一个<br>客户端和一 个服务器)在彼此交换数据包之前必须先建立一一个TCP连接。在一一个TCP连接中，仅有两方进行彼此通信，广播和多播不能用TCP。TCP协议的作用是，保证数据通信的完整性和可靠性，防止丢包。TCP把<br>连接作为最基本的对象,每-条TCP连接都有两个端点, 这种端点我们叫作套接字(socket),端口号拼接到IP地址即构成了套接字。<br><strong>UDP(User Datagram Protocol用户数据报协议):</strong> 是OSI(Open System Interconnection开放式系统互联)参考模型中- -种无连接的传输层协议，提供面向事务的简单不可靠信息传送服务。UDP协议的主要作用是将网<br>络数据流量压缩成数据包的形式。</p>
 </blockquote>
-<h5 id="区别"><a href="#区别" class="headerlink" title="区别:"></a>区别:</h5><ol>
-<li>TCP提供的是面向连接的、可靠的数据流传输; UDP提供的是非面向连接的、不可靠的数据流传输。</li>
-<li>TCP提供可靠的服务，通过TCP连接传送的数据，无差错、不丢失、不重复，按序到达; UDP尽最大努力交付，即不保证可靠交付。</li>
-<li>TCP面向字节流; UDP面向报文。</li>
-<li>TCP连接只能是点到点的; UDP支持-对一、一对多 多对一和多对多的交互通信。</li>
-<li>UDP具有较好的实时性，工作效率比TCP高，适用于对高速传输和实时性有较高的通信或广播通信。</li>
-<li>TCP对系统资源要求较多，UDP对系统资源要求较少。TCP首部有20字节; UDP的首部只有8个字节。</li>
-<li>TCP的逻辑通信信道是全双工的可靠信道; UDP的逻辑通信信道是不可靠信道。</li>
-</ol>
-<h3 id="TCP问题之粘包处理"><a href="#TCP问题之粘包处理" class="headerlink" title="TCP问题之粘包处理"></a>TCP问题之粘包处理</h3><h5 id="出现的原因："><a href="#出现的原因：" class="headerlink" title="出现的原因："></a>出现的原因：</h5><p>出现粘包现象的原因是多方面的，它既可能由发送方造成，也可能由接收方造成。发送方引起的粘包是由TCP协议本身造成的, TCP为提高传输效率,发送方往往要收集到足够多的数据后才发送一包数据。 若连续几次发送的数据都很少，通常TCP会根据优化算法把这些数据合成包后一次发送出去，这样接收方就收到了粘包数据。<br>接收方引起的粘包是由于接收方用户进程不及时接收数据，从而导致粘包现象。这是因为接收方先把收到的数据放在系统接收缓冲区，用户进程从该缓冲区取数据，若下一包数据到达时前一包数据尚未被用户进程取<br>走,则下一包数据放到系统接收缓冲区时就接到前一包数据之后，而用户进程根据预先设定的缓冲区大小从系统接收缓冲区取数据，这样就一次取到了多包数据。</p>
-<h5 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h5><ol>
-<li>特殊字符方式<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F; swoole_tcp_client</span><br><span class="line">for ($i&#x3D;0; $i &lt; 100; $i++) &#123;</span><br><span class="line">    $client-&gt;send(&quot;hello world\i&quot;);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; swoole_tcp_server</span><br><span class="line">&#x2F;&#x2F; 监听数据接收事件</span><br><span class="line">$serv-&gt;on(&#39;Receive&#39;, function ($serv, $fd, $from_id, $data) &#123;</span><br><span class="line">    &#x2F;&#x2F; 接收客户端的想你想</span><br><span class="line">    var_dump(explode(&#39;\i&#39;, $data));</span><br><span class="line">    &#x2F;&#x2F; echo &quot;接收到&quot;.$fd.&quot;信息的&quot;.$data.&quot;\n&quot;;</span><br><span class="line">    &#x2F;&#x2F; echo &quot;接收到&quot;.$fd.&quot;信息&quot;.&quot;\n&quot;;</span><br><span class="line">    $serv-&gt;send($fd, &quot;Server: &quot;);</span><br><span class="line">&#125;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></li>
-<li>统一粘包标准（固定包头+包体协议）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F; client 通过pack进行组包</span><br><span class="line">for ($i&#x3D;0; $i &lt; 10; $i++) &#123;</span><br><span class="line">    &#x2F;&#x2F; 组包</span><br><span class="line">    &#x2F;&#x2F; msg protocol</span><br><span class="line">    &#x2F;&#x2F; | ---- dataLen ---- | data |</span><br><span class="line">    &#x2F;&#x2F; | - fixed 2bytes - |</span><br><span class="line">    $context &#x3D; &quot;123&quot;;</span><br><span class="line">    $len &#x3D; pack(&quot;n&quot;, strlen($context));</span><br><span class="line">    var_dump($len);</span><br><span class="line">    $send &#x3D; $len . $context;</span><br><span class="line">    &#x2F;&#x2F; var_dump($send);</span><br><span class="line">    $client-&gt;send($send);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; server</span><br><span class="line">&#x2F;&#x2F;监听数据接收事件</span><br><span class="line">$serv-&gt;on(&#39;Receive&#39;, function ($serv, $fd, $from_id, $data)&#123;</span><br><span class="line">    var_dump($data);</span><br><span class="line">    $fooLen &#x3D; unpack(&quot;n&quot;, substr($data, $count, 2))[1];</span><br><span class="line">    var_dump($fooLen);</span><br><span class="line">    $foo &#x3D; substr($data, $count + 2, $fooLen);</span><br><span class="line">    var_dump($foo);</span><br><span class="line">    $serv-&gt;send($fd, &quot;Server: &quot;);</span><br><span class="line">&#125;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Swoole进程结构"><a href="#Swoole进程结构" class="headerlink" title="Swoole进程结构"></a>Swoole进程结构</h3><h3 id="1-结构分层"><a href="#1-结构分层" class="headerlink" title="1.结构分层"></a>1.结构分层</h3></li>
-</ol>
-<ul>
-<li>master：主进程</li>
-<li>manager：管理进程 </li>
-<li>worker：工作进程 </li>
-<li>task：异步任务工作进程</li>
-</ul>
-<h5 id="1-1-master"><a href="#1-1-master" class="headerlink" title="1.1.master"></a>1.1.master</h5><p>Master进程，这个是swoole的主进程,这个进程是用于处理swoole的核心事件驱动的，在这个进程当中拥有一个MainReactor[线程]以及若干个Reactor[线程]，swoole所有对于事件的监听都会在这些线程中实现，比如来自客户端的连接，信号处理等。</p>
-<blockquote>
-<p>MainReactor（主线程）</p>
-</blockquote>
-<p>主线程会负责监听server socket，如果有新的连接accept，主线程会评估每个Reactor线程的连接数量。将此连接分配给连接数最少的reactor线程，做一个负载均衡。</p>
-<blockquote>
-<p>Reactor线程组</p>
-</blockquote>
-<p>Reactor线程负责维护客户端机器的TCP连接、处理网络IO、收发数据完全是异步非阻塞的模式。 swoole的主线程在Accept新的连接后，会将这个连接分配给一个固定的Reactor线程，在socket可读时读取数据，并进行协议解析，将请求投递到Worker进程。在socket可写时将数据发送给TCP客户端。</p>
-<blockquote>
-<p>心跳包检测线程（HeartbeatCheck）</p>
-</blockquote>
-<p>Swoole配置了心跳检测之后，心跳包线程会在固定时间内对所有之前在线的连接发送检测数据包</p>
-<h5 id="1-2-manager"><a href="#1-2-manager" class="headerlink" title="1.2.manager"></a>1.2.manager</h5><p>Swoole想要实现最好的性能必须创建出多个工作进程帮助处理任务，但Worker进程就必须fork操作，但是fork操作是不安全的，如果没有管理会出现很多的僵尸进程，进而影响服务器性能，同时worker进程被误杀或者 由于程序的原因会异常退出，为了保证服务的稳定性，需要重新创建worker进程。<br>Swoole在运行中会创建一个单独的管理进程，所有的worker进程和task进程都是从管理进程Fork出来的。管理进程会监视所有子进程的退出事件，当worker进程发生致命错误或者运行生命周期结束时，管理进程会回收 此进程，并创建新的进程。换句话也就是说，对于worker、task进程的创建、回收等操作全权有“保姆”Manager进程进行管理。</p>
-<h5 id="1-3-worker"><a href="#1-3-worker" class="headerlink" title="1.3.worker"></a>1.3.worker</h5><p>worker 进程属于swoole的主逻辑进程，用户处理客户端的一系列请求，接受由Reactor线程投递的请求数据包，并执行PHP回调函数处理数据生成响应数据并发给Reactor线程，由Reactor线程发送给TCP客户端可以是异 步非阻塞模式，也可以是同步阻塞模式</p>
-<h5 id="1-4-task"><a href="#1-4-task" class="headerlink" title="1.4.task"></a>1.4.task</h5><p>taskWorker进程这一进程是swoole提供的异步工作进程，这些进程主要用于处理一些耗时较长的同步任务，在worker进程当中投递过来。</p>
-<h3 id="网络IO模型及阻塞模型"><a href="#网络IO模型及阻塞模型" class="headerlink" title="网络IO模型及阻塞模型"></a>网络IO模型及阻塞模型</h3><p>###5大io模型</p>
-<ol>
-<li>阻塞式I/O模型(blocking i/o)<blockquote>
-<p>在阻塞式I/O模型中，应用程序在从调用recvfrom开始到它返回有数据报准备好这段时间是阻塞的，recvfrom返回成功后，应用进程开始处理数据报</p>
-</blockquote>
-</li>
-</ol>
-<p>2.非阻塞式I/O模型(non-blocking i/o)</p>
-<blockquote>
-<p>在非阻塞式I/O模型中，应用程序把一个套接口设置为非阻塞就是告诉内核，当所请求的I/O操作 无法完成时，不要将进程睡眠，而是返回-一个错误，应用程序基于I/O操作函数将不断的轮询数据 是否已经准备好，如<br>果没有准备好，继续轮询，直到数据准备好为止</p>
-</blockquote>
-<ol start="3">
-<li><p>I/O复用模型(i/o multiplexing)</p>
-<blockquote>
-<p>在I/O复用模型中，会用到select或poll函数或epoll函数(Linux2.6以后的内核开始支持)， 这两个函数也会使进程阻塞，但是和阻塞I/O所不同的的，这两个函数可以同时阻塞多个I/O操作，而且可以同时对多个读操作，多<br>个写操作的I/0函数进行检测，直到有数据可读或可写时，才填正调用I/O操作函数</p>
-</blockquote>
-</li>
-<li><p>信号驱动式I/O模型(signal-driven i/o)</p>
-<blockquote>
-<p>由POSIX规范定义，应用程序告知内核启动某个操作，并让内核在整个操作( 包括将数据从内核拷贝到应用程序的缓冲区)完成后通知应用程序。这种模型与信号驱动模型的主要区别在于:信号驱动I/O是由内核通知应用程序何时启动一个I/O操作， 而异步I/O模型是由内核通知应用程序I/O操作何时完成</p>
-</blockquote>
-</li>
-</ol>
-<p>5.异步I/O模型(asynchronous i/o)</p>
-<blockquote>
-<p>由POSIX规范定义，应用程序告知内核启动某个操作，并让内核在整个操作( 包括将数据从内核拷贝到应用程序的缓冲区)完成后通知应用程序。这种模型与信号驱动模型的主要区别在于:信号驱动I/O是由内核通知应用程序何时启动一个I/O操作， 而异步I/O模型是由内核通知应用程序 I/O操作何时完成</p>
-</blockquote>
-
+        
+        <p class="article-more-link">
+            <a href="/2020/08/06/%E5%AD%A6%E4%B9%A0swoole%E4%BD%A0%E5%BF%85%E9%A1%BB%E4%BA%86%E8%A7%A3%E8%BF%99%E4%BA%9B/#more">
+                <span class="vm">阅读更多</span>
+                <i class="icon-arrow-double-right vm"></i>    
+            </a>
+        </p>
+        
         
     </section>
 </article>
