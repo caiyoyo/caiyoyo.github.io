@@ -7,7 +7,7 @@
 
     
 
-    <title>归档: 2020/8 | Collen随笔</title>
+    <title>swoole心跳检测及毫秒定时器 | Collen随笔</title>
     <meta name="author" content="Collen" />
     <meta name="keywords" content="PHP,Docker,Redis,Swoole" />
     <meta name="description" content="" />
@@ -64,7 +64,7 @@
                 <span class="nav-text">标签</span>
             </a>
         
-            <a class="nav-item active" href="/archives">
+            <a class="nav-item" href="/archives">
                 <span class="nav-text">归档</span>
             </a>
         
@@ -84,6 +84,8 @@
     <div id="aside-inner" class="aside-inner">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.collen.cn"></form>
 
+        
+        
         
         
 
@@ -142,66 +144,64 @@
 
         <div id="content" class="content">
             <div id="wrapper" class="wrapper" style="max-width: 800px">
-                
-
-
+                <article class="article" itemscope itemprop="blogPost">
     
-    
-    
-    
-    
-    <section class="archives-wrap">
-    <div class="archive-year-wrap">
-    <a href="/archives/2020/08" class="page-hd">
-        2020/08
-    </a>
-    </div>
-    <ol class="archives">
-    
-
-    <li class="archive-section-item">
+    <header class="article-header">
         
-<article class="archive-article archive-type-post">
-    <div class="archive-article-inner">
-        <header class="archive-article-header">
-            <a class="archive-article-link" href="/2020/08/07/swoole%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8B%E5%8F%8A%E6%AF%AB%E7%A7%92%E5%AE%9A%E6%97%B6%E5%99%A8/">swoole心跳检测及毫秒定时器</a>
-            <span class="archive-article-date">
-                (<a class="article-date" href="/archives/2020/08">
-    
-    <time class="vm" datetime="2020-08-07T03:18:59.000Z" itemprop="datePublished">8/7</time>
-</a>
-)
-            </span>
-        </header>
-    </div>
-</article>
-    </li>
-
-    
-    
-
-    <li class="archive-section-item">
+        <h1 itemprop="name">
+            swoole心跳检测及毫秒定时器
+        </h1>
         
-<article class="archive-article archive-type-post">
-    <div class="archive-article-inner">
-        <header class="archive-article-header">
-            <a class="archive-article-link" href="/2020/08/06/%E5%AD%A6%E4%B9%A0swoole%E4%BD%A0%E5%BF%85%E9%A1%BB%E4%BA%86%E8%A7%A3%E8%BF%99%E4%BA%9B/">学习swoole你必须了解这些</a>
-            <span class="archive-article-date">
-                (<a class="article-date" href="/archives/2020/08">
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.collen.cn/2020/08/07/swoole%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8B%E5%8F%8A%E6%AF%AB%E7%A7%92%E5%AE%9A%E6%97%B6%E5%99%A8/index.html">
     
-    <time class="vm" datetime="2020-08-06T08:44:42.000Z" itemprop="datePublished">8/6</time>
+    <i class="icon-calendar vm"></i>
+    
+    <time class="vm" datetime="2020-08-07T03:18:59.000Z" itemprop="datePublished">2020-08-07</time>
 </a>
-)
-            </span>
-        </header>
-    </div>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag vm"></i>
+    <a class="article-tag-link" href="/tags/swoole/" rel="tag">swoole</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        
+        
+    </section>
 </article>
-    </li>
 
 
-</ol></section>
+
+<a id="pagenext" href="/2020/08/06/%E5%AD%A6%E4%B9%A0swoole%E4%BD%A0%E5%BF%85%E9%A1%BB%E4%BA%86%E8%A7%A3%E8%BF%99%E4%BA%9B/" class="article-next" title="学习swoole你必须了解这些"><i class="icon-arrow-right"></i></a>
 
 
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "7fbe80427f54741e289f",
+        clientSecret: "f34ed5fd92e54c9000bd37ba951948cb939deff5",
+        repo: "caiyoyo.github.io",
+        owner: "collen",
+        admin: ["collen"],
+        id: "2020/08/07/swoole心跳检测及毫秒定时器",
+        distractionFreeMode: true,
+        title: "swoole心跳检测及毫秒定时器",
+        body: "http://blog.collen.cn/2020/08/07/swoole%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8B%E5%8F%8A%E6%AF%AB%E7%A7%92%E5%AE%9A%E6%97%B6%E5%99%A8/",
+        labels: ["swoole"]
+    }).render('comments');
+    </script>
+</div>
 
 
             </div>
@@ -278,6 +278,33 @@
         });
     });
     </script>
+    
+        
+<script src="/js/scrollspy.min.js"></script>
+
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
     
 
 </body>
