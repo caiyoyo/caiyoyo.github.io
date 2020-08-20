@@ -148,7 +148,7 @@
 <h5 id="6-数据节点-DataNode"><a href="#6-数据节点-DataNode" class="headerlink" title="6.数据节点-DataNode"></a>6.数据节点-DataNode</h5><p>配置物理的database。数据保存的物理节点就是database</p>
 <h5 id="7-分片规则"><a href="#7-分片规则" class="headerlink" title="7.分片规则"></a>7.分片规则</h5><p>当控制数据的时候，如何访问物理database和table？<br>就是访问dataHost和dataNode的算法<br>在Mysql处理CRUD时，如何访问datahost和datanode的算法？如：哈希算法，crc32算法等。</p>
 <h3 id="三、MyCat的安装及使用"><a href="#三、MyCat的安装及使用" class="headerlink" title="三、MyCat的安装及使用"></a>三、MyCat的安装及使用</h3><h5 id="3-1-配置mysql的主从复制"><a href="#3-1-配置mysql的主从复制" class="headerlink" title="3.1. 配置mysql的主从复制"></a>3.1. 配置mysql的主从复制</h5><p>1、 安装mysql主从数据库，并修改my.cnf配置项</p>
-<p>2、 打开主库输入命令<code>show master slave</code>查看file和position参数 后面关联时候要用</p>
+<p>2、 打开主库输入命令<code>show master status</code>查看file和position参数 后面关联时候要用</p>
 <p>3、 创建用户用于从库访问主库</p>
 <p>4、 配置主从信息，打开从库输入<code>change master to master_host=&#39;主库ip&#39;,master_port=主库端口,master_user=&#39;主库登陆账号&#39;,master_password=&#39;主库密码&#39;,master_log_file=&#39;第2步中的file&#39;,master_log_pos=第2步中的position;</code></p>
 <p>5、 启动从库slave功能 <code>start slave</code></p>
